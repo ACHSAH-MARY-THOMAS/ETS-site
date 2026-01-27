@@ -1,0 +1,277 @@
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+
+interface CrosswordPuzzleProps {
+    onSolve?: (answer: string) => void;
+}
+
+// Crossword grid structure
+type Cell = {
+    letter: string;
+    number?: number;
+    editable: boolean;
+    across?: boolean;
+    down?: boolean;
+};
+
+export const CrosswordPuzzle = ({ onSolve }: CrosswordPuzzleProps) => {
+    // Initialize crossword grid (7x7 grid based on the puzzle)
+    const initializeGrid = (): (Cell | null)[][] => {
+        const grid: (Cell | null)[][] = Array(7).fill(null).map(() => Array(7).fill(null));
+        
+        // Row 0: LIGHT (across)
+        grid[0][1] = { letter: 'L', number: 1, editable: true, across: true };
+        grid[0][2] = { letter: 'I', editable: true };
+        grid[0][3] = { letter: 'G', editable: true };
+        grid[0][4] = { letter: 'H', editable: true };
+        grid[0][5] = { letter: 'T', editable: true };
+        
+        // Row 1: BACK (across) - starts at column 2
+        grid[1][2] = { letter: 'B', number: 2, editable: true, across: true };
+        grid[1][3] = { letter: 'A', editable: true };
+        grid[1][4] = { letter: 'C', editable: true };
+        grid[1][5] = { letter: 'K', editable: true };
+        
+        // Row 2: WAY (across) - starts at column 5
+        grid[2][5] = { letter: 'W', number: 5, editable: true, across: true };
+        grid[2][6] = { letter: 'A', editable: true };
+        
+        // Column 3: THE (down)
+        grid[3][3] = { letter: 'T', number: 4, editable: true, down: true };
+        grid[4][3] = { letter: 'H', editable: true };
+        grid[5][3] = { letter: 'E', editable: true };
+        
+        // Column 1: HOME (down)
+        grid[3][1] = { letter: 'H', number: 3, editable: true, down: true };
+        grid[4][1] = { letter: 'O', editable: true };
+        grid[5][1] = { letter: 'M', editable: true };
+        grid[6][1] = { letter: 'E', editable: true };
+        
+        // Row 2 continuation: Y for WAY
+        grid[3][6] = { letter: 'Y', editable: true };
+        
+        return grid;
+    };
+
+    const [grid] = useState<(Cell | null)[][]>(initializeGrid());
+    const [userGrid, setUserGrid] = useState<string[][]>(
+        Array(7).fill(null).map(() => Array(7).fill(''))
+    );
+    const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
+    const [finalAnswer, setFinalAnswer] = useState("");
+    const [crosswordComplete, setCrosswordComplete] = useState(false);
+    const [feedback, setFeedback] = useState("");
+    const [solved, setSolved] = useState(false);
+
+    const clues = [
+        { number: 1, text: "I come from the sun or a lamp" },
+        { number: 2, text: "Don't Turn your _____ on friends" },
+        { number: 3, text: "I'm the place where you live with your family" },
+        { number: 4, text: "I'm a tiny word, the most common English word" },
+        { number: 5, text: "I'm a path or a road, I show you which direction to go" }
+    ];
+
+    const handleCellClick = (row: number, col: number) => {
+        if (grid[row][col]?.editable && !crosswordComplete) {
+            setSelectedCell({ row, col });
+        }
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (!selectedCell || crosswordComplete) return;
+
+        const { row, col } = selectedCell;
+        const key = e.key.toUpperCase();
+
+        if (/^[A-Z]$/.test(key)) {
+            const newUserGrid = [...userGrid];
+            newUserGrid[row][col] = key;
+            setUserGrid(newUserGrid);
+            
+            // Move to next cell
+            moveToNextCell(row, col);
+        } else if (e.key === 'Backspace') {
+            const newUserGrid = [...userGrid];
+            newUserGrid[row][col] = '';
+            setUserGrid(newUserGrid);
+        }
+    };
+
+    const moveToNextCell = (row: number, col: number) => {
+        // Try to move right first
+        if (col + 1 < 7 && grid[row][col + 1]?.editable) {
+            setSelectedCell({ row, col: col + 1 });
+        } else if (row + 1 < 7 && grid[row + 1][col]?.editable) {
+            setSelectedCell({ row: row + 1, col });
+        }
+    };
+
+    const checkCrossword = () => {
+        let allCorrect = true;
+        for (let row = 0; row < 7; row++) {
+            for (let col = 0; col < 7; col++) {
+                if (grid[row][col]?.editable) {
+                    if (userGrid[row][col] !== grid[row][col]?.letter) {
+                        allCorrect = false;
+                        break;
+                    }
+                }
+            }
+            if (!allCorrect) break;
+        }
+
+        if (allCorrect) {
+            setCrosswordComplete(true);
+            setFeedback("✓ Crossword complete! Now create the final sentence.");
+        } else {
+            setFeedback("✗ Some answers are incorrect. Keep trying!");
+        }
+    };
+
+    const handleFinalSubmit = () => {
+        const correctAnswer = "LIGHT THE WAY BACK HOME";
+        if (finalAnswer.toUpperCase().trim() === correctAnswer) {
+            setSolved(true);
+            setFeedback("✓ CORRECT! YOU'VE SOLVED THE PUZZLE!");
+            setTimeout(() => {
+                onSolve?.(correctAnswer);
+            }, 1000);
+        } else {
+            setFeedback("✗ Incorrect sentence! Use the words from the crossword.");
+        }
+    };
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="w-full max-w-4xl mx-auto p-4 space-y-6"
+            onKeyDown={handleKeyPress}
+            tabIndex={0}
+        >
+            {/* Title */}
+            <div className="text-center space-y-2">
+                <p className="text-sm md:text-base font-['Press_Start_2P'] text-foreground leading-relaxed">
+                    Crossword Puzzle
+                </p>
+                <p className="text-xs font-['Press_Start_2P'] text-muted-foreground leading-relaxed">
+                    Click a box and type your answer
+                </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Left: Clues */}
+                <div className="space-y-4">
+                    <div className="border-2 border-primary/30 rounded-lg p-4 bg-card/50">
+                        <h3 className="text-xs font-['Press_Start_2P'] text-primary mb-4">CLUES</h3>
+                        <div className="space-y-3">
+                            {clues.map((clue) => (
+                                <div key={clue.number} className="text-xs font-['Press_Start_2P'] text-foreground/80">
+                                    <span className="text-primary">{clue.number}.</span>
+                                    <p className="ml-4 mt-1 text-[10px] leading-relaxed">{clue.text}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Right: Crossword Grid */}
+                <div className="flex flex-col items-center justify-center">
+                    <div className="inline-block border-4 border-primary/50 rounded-lg p-4 bg-black/60">
+                        <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(7, minmax(0, 1fr))` }}>
+                            {grid.map((row, rowIndex) =>
+                                row.map((cell, colIndex) => (
+                                    <div
+                                        key={`${rowIndex}-${colIndex}`}
+                                        onClick={() => handleCellClick(rowIndex, colIndex)}
+                                        className={`
+                                            w-10 h-10 border-2 flex items-center justify-center relative text-lg font-bold
+                                            ${cell?.editable
+                                                ? 'bg-black text-primary border-primary/60 cursor-pointer hover:bg-primary/10'
+                                                : 'bg-black border-white/10'
+                                            }
+                                            ${selectedCell?.row === rowIndex && selectedCell?.col === colIndex
+                                                ? 'ring-2 ring-primary shadow-lg shadow-primary/50'
+                                                : ''
+                                            }
+                                        `}
+                                    >
+                                        {cell?.number && (
+                                            <span className="absolute top-0 left-0.5 text-[8px] text-primary font-['Press_Start_2P']">
+                                                {cell.number}
+                                            </span>
+                                        )}
+                                        {cell?.editable && (
+                                            <span className="font-['Press_Start_2P'] text-sm">
+                                                {userGrid[rowIndex][colIndex]}
+                                            </span>
+                                        )}
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                    
+                    {!crosswordComplete && (
+                        <Button
+                            onClick={checkCrossword}
+                            className="mt-4 bg-primary hover:bg-primary/80 text-primary-foreground font-['Press_Start_2P'] px-6 py-2 text-xs"
+                        >
+                            Check Answers
+                        </Button>
+                    )}
+                </div>
+            </div>
+
+            {/* Final Answer Section */}
+            {crosswordComplete && (
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="border-4 border-primary/50 rounded-lg p-6 bg-primary/10 space-y-4"
+                >
+                    <p className="text-xs md:text-sm font-['Press_Start_2P'] text-foreground uppercase text-center">
+                        Create the final sentence from the answers
+                    </p>
+                    <input
+                        type="text"
+                        value={finalAnswer}
+                        onChange={(e) => {
+                            setFinalAnswer(e.target.value);
+                            setFeedback("");
+                        }}
+                        placeholder="Type the complete message..."
+                        disabled={solved}
+                        className="w-full px-4 py-3 bg-black border-2 border-primary/50 rounded text-foreground font-['Press_Start_2P'] text-sm uppercase focus:outline-none focus:border-primary disabled:opacity-50"
+                    />
+                    <div className="flex justify-center">
+                        <Button
+                            onClick={handleFinalSubmit}
+                            disabled={solved || finalAnswer.length === 0}
+                            className="bg-primary hover:bg-primary/80 text-primary-foreground font-['Press_Start_2P'] px-8 py-2 text-xs uppercase"
+                        >
+                            {solved ? "✓ Completed" : "Submit Answer"}
+                        </Button>
+                    </div>
+                </motion.div>
+            )}
+
+            {/* Feedback */}
+            {feedback && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className={`text-center p-4 rounded-lg font-['Press_Start_2P'] text-xs ${
+                        feedback.includes("✓")
+                            ? "bg-green-500/20 text-green-400"
+                            : "bg-red-500/20 text-red-400"
+                    }`}
+                >
+                    {feedback}
+                </motion.div>
+            )}
+        </motion.div>
+    );
+};
