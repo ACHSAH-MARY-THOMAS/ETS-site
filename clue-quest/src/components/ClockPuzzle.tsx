@@ -1,179 +1,287 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Terminal, Skull, ArrowUp, ArrowRight, ArrowDown, ArrowLeft } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { submitAnswer } from '@/lib/api';
 
 interface ClockPuzzleProps {
-    onSolve?: (sequence: string[]) => void;
+    onCorrectAnswer?: () => void;
+    onWrongAnswer?: () => void;
+    onSolve?: (answer: string) => void;
+    level?: number;
 }
 
-export const ClockPuzzle = ({ onSolve }: ClockPuzzleProps) => {
-    const [rotations, setRotations] = useState<number[]>([0, 0, 0, 0]); // rotation count for each arrow
-    const [solved, setSolved] = useState(false);
-    const [feedback, setFeedback] = useState<string>("");
+type Direction = 'up' | 'right' | 'down' | 'left';
 
-    // Target time 12:15 means rotations should be [1, 2, 1, 5]
-    const targetRotations = [1, 2, 1, 5];
+const directionIcons = {
+    up: ArrowUp,
+    right: ArrowRight,
+    down: ArrowDown,
+    left: ArrowLeft,
+};
 
-    const handleArrowClick = (index: number) => {
-        if (solved) return;
+const directionRotations = {
+    up: 0,
+    right: 90,
+    down: 180,
+    left: 270,
+};
 
-        setRotations((prev) => {
-            const newRotations = [...prev];
-            newRotations[index] = (newRotations[index] + 1) % 10; // Wrap 0-9
-            return newRotations;
-        });
-        setFeedback("");
+const ClockPuzzle = ({ onCorrectAnswer, onWrongAnswer, onSolve, level = 1 }: ClockPuzzleProps) => {
+    const [arrows, setArrows] = useState<Direction[]>(['up', 'right', 'up', 'down']);
+    const [arrowNumbers, setArrowNumbers] = useState<number[]>([0, 0, 0, 0]);
+    const [isShaking, setIsShaking] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+    const [showDenied, setShowDenied] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        // Randomize arrow directions on mount
+        const randomDirections: Direction[] = ['up', 'right', 'down', 'left'];
+        setArrows([
+            randomDirections[Math.floor(Math.random() * 4)],
+            randomDirections[Math.floor(Math.random() * 4)],
+            randomDirections[Math.floor(Math.random() * 4)],
+            randomDirections[Math.floor(Math.random() * 4)],
+        ]);
+    }, []);
+
+    const rotateArrow = (index: number) => {
+        if (isSuccess) return;
+
+        const directionCycle: Direction[] = ['up', 'right', 'down', 'left'];
+        const currentDirection = arrows[index];
+        const currentIndex = directionCycle.indexOf(currentDirection);
+        const nextDirection = directionCycle[(currentIndex + 1) % 4];
+
+        const newArrows = [...arrows];
+        newArrows[index] = nextDirection;
+        setArrows(newArrows);
+
+        // Increment the number indicator (0-9, reset after 9)
+        const newNumbers = [...arrowNumbers];
+        newNumbers[index] = (newNumbers[index] + 1) % 10;
+        setArrowNumbers(newNumbers);
     };
 
-    const handleConfirm = () => {
-        // Check if all rotations match the target
-        const isCorrect = rotations.every((rotation, index) => rotation === targetRotations[index]);
-
-        if (isCorrect) {
-            setSolved(true);
-            setFeedback("✓ CORRECT TIME!");
-            onSolve?.(["CONFIRMED"]);
-        } else {
-            setFeedback("✗ Incorrect! Check the time on the clock (12:15)");
+    const handleSubmit = async () => {
+        if (isSubmitting || isSuccess) return;
+        
+        setIsSubmitting(true);
+        
+        // Format the answer as the 4 digit numbers (e.g., "1215")
+        const answer = arrowNumbers.join('');
+        
+        // Correct answer is 1215 (12:15)
+        const correctAnswer = '1215';
+        
+        try {
+            // Try backend validation first
+            const response = await submitAnswer(answer);
+            
+            if (response.correct) {
+                setIsSuccess(true);
+                setTimeout(() => {
+                    onCorrectAnswer?.();
+                    onSolve?.('CLOCK_SOLVED');
+                }, 800);
+            } else {
+                setIsShaking(true);
+                setShowDenied(true);
+                setTimeout(() => setIsShaking(false), 500);
+                setTimeout(() => setShowDenied(false), 2000);
+                onWrongAnswer?.();
+            }
+        } catch (error) {
+            // Fallback to local validation if backend fails (demo mode)
+            console.log('Backend unavailable, using local validation');
+            
+            if (answer === correctAnswer) {
+                setIsSuccess(true);
+                setTimeout(() => {
+                    onCorrectAnswer?.();
+                    onSolve?.('CLOCK_SOLVED');
+                }, 800);
+            } else {
+                setIsShaking(true);
+                setShowDenied(true);
+                setTimeout(() => setIsShaking(false), 500);
+                setTimeout(() => setShowDenied(false), 2000);
+                onWrongAnswer?.();
+            }
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className="w-full max-w-md mx-auto p-6 space-y-8"
+        <div
+            className={cn(
+                'w-full flex-1 min-h-0 glass-card-glow rounded-sm overflow-hidden transition-all duration-300 flex flex-col',
+                isShaking && 'shake',
+                isSuccess && 'flash-green'
+            )}
         >
-            {/* Question Text */}
-            <div className="text-center space-y-2">
-                <p className="text-sm md:text-base font-['press_start P'] text-foreground leading-relaxed">
-                    Check the current time.
-                </p>
-                <p className="text-xs md:text-sm font-['Press_Start_2P'] text-muted-foreground leading-relaxed">
-                    Directions can change time
-                </p>
+            {/* Header */}
+            <div className="bg-secondary/50 px-4 py-3 border-b border-border flex items-center gap-3 flex-shrink-0">
+                <Terminal className="h-5 w-5 text-primary" />
+                <span className="text-sm uppercase tracking-[0.2em] text-primary font-bold">
+                    Security Layer {level.toString().padStart(2, '0')}
+                </span>
+                <span className="text-muted-foreground text-sm">// AUTHOR: V. VON DOOM</span>
             </div>
 
-            {/* Clock Face Visual - Static 12:15 */}
-            <div className="flex flex-col items-center">
-                <div className="relative w-48 h-48 border-4 border-primary rounded-full bg-card shadow-lg">
-                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
-                        {/* Clock numbers */}
-                        {[12, 3, 6, 9].map((num, i) => {
-                            const angle = (i * 90 - 90) * (Math.PI / 180);
-                            const x = 50 + 40 * Math.cos(angle);
-                            const y = 50 + 40 * Math.sin(angle);
-                            return (
-                                <text
-                                    key={num}
-                                    x={x}
-                                    y={y}
-                                    textAnchor="middle"
-                                    dominantBaseline="middle"
-                                    className="text-xs fill-foreground font-bold"
-                                    fontSize="6"
-                                >
-                                    {num}
-                                </text>
-                            );
-                        })}
+            {/* Content */}
+            <div className="px-3 py-2 space-y-1 flex flex-col flex-1 min-h-0 overflow-hidden w-full">
+                {/* Puzzle Question */}
+                <div className="space-y-1 flex-1 flex flex-col min-h-0 overflow-hidden">
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                        <span className="text-primary">&gt;</span> TEMPORAL DECRYPTION CHALLENGE
+                    </div>
 
-                        {/* Hour hand pointing at 12 - short and thick */}
-                        <line
-                            x1="50"
-                            y1="50"
-                            x2="50"
-                            y2="25"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                            className="text-primary"
-                            strokeLinecap="round"
-                        />
+                    <div className="glass-card p-4 rounded-sm flex-1 min-h-0 flex flex-col justify-between overflow-hidden">
+                        <p className="text-foreground text-sm leading-relaxed flex-shrink-0">
+                            Check the current time on the clock. The directions can change time.
+                            Rotate the arrows to match the correct sequence.
+                        </p>
 
-                        {/* Minute hand pointing at 3 (15 minutes) - long and thin */}
-                        <line
-                            x1="50"
-                            y1="50"
-                            x2="85"
-                            y2="50"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            className="text-accent"
-                            strokeLinecap="round"
-                        />
+                        {/* Clock Display */}
+                        <div className="flex flex-col justify-center items-center flex-1">
+                            <div className="relative w-52 h-52">
+                                {/* Clock Circle */}
+                                <svg viewBox="0 0 200 200" className="w-full h-full">
+                                    {/* Clock face */}
+                                    <circle
+                                        cx="100"
+                                        cy="100"
+                                        r="90"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        className="text-primary/30"
+                                    />
 
-                        {/* Center dot */}
-                        <circle cx="50" cy="50" r="2" className="fill-primary" />
-                    </svg>
-                </div>
-            </div>
+                                    {/* Hour markers */}
+                                    {[...Array(12)].map((_, i) => {
+                                        const angle = (i * 30 - 90) * (Math.PI / 180);
+                                        const x1 = 100 + 75 * Math.cos(angle);
+                                        const y1 = 100 + 75 * Math.sin(angle);
+                                        const x2 = 100 + 85 * Math.cos(angle);
+                                        const y2 = 100 + 85 * Math.sin(angle);
+                                        return (
+                                            <line
+                                                key={i}
+                                                x1={x1}
+                                                y1={y1}
+                                                x2={x2}
+                                                y2={y2}
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                className="text-primary/50"
+                                            />
+                                        );
+                                    })}
 
-            {/* Four Arrows in Sequence */}
-            <div className="space-y-6">
-                <div className="flex justify-center gap-4">
-                    {[0, 1, 2, 3].map((index) => (
-                        <div key={index} className="flex flex-col items-center gap-2">
-                            <button
-                                onClick={() => handleArrowClick(index)}
-                                disabled={solved}
-                                className="p-6 rounded-lg border-2 border-primary bg-primary/20 hover:bg-primary/30 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110 active:scale-95"
-                            >
-                                <motion.div
-                                    animate={{
-                                        rotate: rotations[index] * 90,
-                                    }}
-                                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                                >
-                                    <ArrowUp className="w-8 h-8 text-primary" />
-                                </motion.div>
-                            </button>
-                            <div className="text-xs font-['Press_Start_2P'] text-primary">
-                                {rotations[index]}
+                                    {/* Hour hand pointing to 12 */}
+                                    <line
+                                        x1="100"
+                                        y1="100"
+                                        x2="100"
+                                        y2="45"
+                                        stroke="currentColor"
+                                        strokeWidth="6"
+                                        strokeLinecap="round"
+                                        className="text-primary"
+                                    />
+
+                                    {/* Minute hand pointing to 3 (15 minutes) */}
+                                    <line
+                                        x1="100"
+                                        y1="100"
+                                        x2="155"
+                                        y2="100"
+                                        stroke="currentColor"
+                                        strokeWidth="4"
+                                        strokeLinecap="round"
+                                        className="text-primary"
+                                    />
+
+                                    {/* Center dot */}
+                                    <circle cx="100" cy="100" r="5" fill="currentColor" className="text-primary" />
+                                </svg>
                             </div>
                         </div>
-                    ))}
+
+                        {/* Arrow Controls */}
+                        <div className="flex-shrink-0">
+                            <div className="text-xs uppercase tracking-widest text-muted-foreground mb-3 text-center">
+                                Rotate arrows to match the pattern
+                            </div>
+                            <div className="flex justify-center gap-4">
+                                {arrows.map((direction, index) => {
+                                    const Icon = directionIcons[direction];
+                                    return (
+                                        <button
+                                            key={index}
+                                            onClick={() => rotateArrow(index)}
+                                            disabled={isSuccess}
+                                            className={cn(
+                                                'w-16 h-16 rounded-sm glass-card flex items-center justify-center',
+                                                'transition-all duration-200 hover:scale-110 hover:border-primary/50',
+                                                'active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed',
+                                                'border border-border'
+                                            )}
+                                            style={{
+                                                transform: `rotate(${directionRotations[direction]}deg)`,
+                                            }}
+                                        >
+                                            <ArrowUp className="h-7 w-7 text-primary" />
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                            {/* Direction Indicators */}
+                            <div className="flex justify-center gap-4 mt-2">
+                                {arrowNumbers.map((num, index) => (
+                                    <div key={index} className="w-16 text-center text-primary font-bold text-lg">
+                                        {num}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Confirm Button */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                >
-                    <Button
-                        onClick={handleConfirm}
-                        disabled={solved}
-                        className={`w-full font-['Press_Start_2P'] text-xs uppercase tracking-widest py-4 transition-all ${
-                            solved
-                                ? "bg-green-500 text-black"
-                                : "bg-primary text-black hover:bg-primary/90"
-                        }`}
-                    >
-                        {solved ? "✓ CONFIRMED" : "OK"}
-                    </Button>
-                </motion.div>
+                {/* Access Denied Message */}
+                {showDenied && (
+                    <div className="flex items-center justify-center gap-2 py-2 bg-destructive/10 border border-destructive/50 rounded-sm animate-fade-in flex-shrink-0">
+                        <Skull className="h-4 w-4 text-destructive" />
+                        <span className="text-destructive font-bold text-xs uppercase tracking-wider">
+                            Access Denied. Doom is watching.
+                        </span>
+                    </div>
+                )}
 
-                {/* Feedback Message */}
-                <AnimatePresence>
-                    {feedback && (
-                        <motion.div
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.8, opacity: 0 }}
-                            className={`text-center text-xs md:text-sm font-['Press_Start_2P'] p-3 rounded border-2 ${
-                                solved
-                                    ? "bg-green-500/20 text-green-400 border-green-500"
-                                    : "bg-red-500/20 text-red-400 border-red-500"
-                            }`}
-                        >
-                            {feedback}
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                {/* Success Message */}
+                {isSuccess && (
+                    <div className="flex items-center justify-center gap-2 py-2 bg-primary/10 border border-primary/50 rounded-sm animate-fade-in flex-shrink-0">
+                        <span className="text-primary font-bold text-xs uppercase tracking-wider">
+                            Temporal Lock Breached. Proceeding...
+                        </span>
+                    </div>
+                )}
+
+                {/* Submit Button */}
+                <Button
+                    onClick={handleSubmit}
+                    className="w-full bg-primary text-black hover:bg-primary/90 font-bold text-sm uppercase tracking-widest py-3 flex-shrink-0"
+                    disabled={isSuccess || isSubmitting}
+                >
+                    {isSubmitting ? 'VERIFYING...' : 'EXECUTE'}
+                </Button>
             </div>
-        </motion.div>
+        </div>
     );
 };
 
+export default ClockPuzzle;

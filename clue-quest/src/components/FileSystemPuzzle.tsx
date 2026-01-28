@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, Trash2 } from "lucide-react";
 
 interface FileSystemPuzzleProps {
     onSolve?: (answer: string) => void;
@@ -124,11 +124,7 @@ export const FileSystemPuzzle = ({ onSolve }: FileSystemPuzzleProps) => {
     const getIcon = (item: FileItem) => {
         if (item.type === "trash") {
             return (
-                <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m0 0v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6h12z" 
-                        stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M10 11v6M14 11v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
+                <Trash2 className="w-8 h-8 text-red-500" />
             );
         } else {
             return (

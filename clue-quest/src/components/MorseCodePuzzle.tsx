@@ -10,17 +10,27 @@ export const MorseCodePuzzle = ({ onSolve }: MorseCodePuzzleProps) => {
     const [userAnswer, setUserAnswer] = useState("");
     const [feedback, setFeedback] = useState("");
     const [solved, setSolved] = useState(false);
+    const [showUnscrambleHint, setShowUnscrambleHint] = useState(false);
 
     // Morse code for TREMENDOUS (only codes, no letters shown)
     const tremendousMorse = ["−", "•−•", "•", "−−", "•", "−•", "−••", "−−−", "••−", "•••"];
 
     const handleSubmit = () => {
-        const correctAnswer = "TREND";
-        if (userAnswer.toUpperCase().trim() === correctAnswer) {
+        const answer = userAnswer.toUpperCase().trim();
+        
+        // If they enter "TREMENDOUS" - show the unscramble hint
+        if (answer === "TREMENDOUS") {
+            setShowUnscrambleHint(true);
+            setFeedback("🔍 UNSCRAMBLE AND FIND THE WORD WITHIN");
+            return;
+        }
+        
+        // Correct answer is "TREND"
+        if (answer === "TREND") {
             setSolved(true);
             setFeedback("✓ CORRECT! You decoded it!");
             setTimeout(() => {
-                onSolve?.(correctAnswer);
+                onSolve?.("TREND");
             }, 1000);
         } else {
             setFeedback("✗ Incorrect! Read the hint carefully and look at the morse code.");
@@ -106,6 +116,8 @@ export const MorseCodePuzzle = ({ onSolve }: MorseCodePuzzleProps) => {
                     className={`text-center p-4 rounded-lg font-['Press_Start_2P'] text-xs ${
                         feedback.includes("✓")
                             ? "bg-green-500/20 text-green-400"
+                            : feedback.includes("🔍")
+                            ? "bg-yellow-500/20 text-yellow-400 border-2 border-yellow-500/50"
                             : "bg-red-500/20 text-red-400"
                     }`}
                 >
