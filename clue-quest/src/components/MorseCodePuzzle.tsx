@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Terminal } from "lucide-react";
+import { Terminal, Lightbulb } from "lucide-react";
 
 interface MorseCodePuzzleProps {
     onSolve?: (answer: string) => void;
@@ -13,6 +13,7 @@ export const MorseCodePuzzle = ({ onSolve, level = 3 }: MorseCodePuzzleProps) =>
     const [feedback, setFeedback] = useState("");
     const [solved, setSolved] = useState(false);
     const [showUnscrambleHint, setShowUnscrambleHint] = useState(false);
+    const [showHint, setShowHint] = useState(false);
 
     // Morse code for TREMENDOUS (only codes, no letters shown)
     const tremendousMorse = ["−", "•−•", "•", "−−", "•", "−•", "−••", "−−−", "••−", "•••"];
@@ -79,10 +80,27 @@ export const MorseCodePuzzle = ({ onSolve, level = 3 }: MorseCodePuzzleProps) =>
             </div>
 
             {/* Hint Box - After morse code */}
-            <div className="border-2 border-yellow-500/50 rounded-lg p-4 bg-yellow-500/10">
-                <p className="text-xs font-['Press_Start_2P'] text-yellow-400 text-center leading-relaxed">
-                    Hop to the word given and escape key is a word in it
-                </p>
+            <div className="space-y-2">
+                <Button
+                    onClick={() => setShowHint(!showHint)}
+                    variant="outline"
+                    className="w-full border-2 border-primary/50 bg-primary/10 hover:bg-primary/20 text-primary font-['Press_Start_2P'] text-xs py-3 flex items-center justify-center gap-2"
+                >
+                    <Lightbulb className="w-4 h-4" />
+                    {showHint ? "HIDE HINT" : "NEED A HINT?"}
+                </Button>
+                {showHint && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="border-2 border-green-500/50 rounded-lg p-4 bg-green-500/10"
+                    >
+                        <p className="text-xs font-['Press_Start_2P'] text-green-400 text-center leading-relaxed">
+                            Hop to the word given and escape key is a word in it
+                        </p>
+                    </motion.div>
+                )}
             </div>
 
             {/* Answer Input Box - Bottom */}
@@ -124,7 +142,7 @@ export const MorseCodePuzzle = ({ onSolve, level = 3 }: MorseCodePuzzleProps) =>
                         feedback.includes("✓")
                             ? "bg-green-500/20 text-green-400"
                             : feedback.includes("🔍")
-                            ? "bg-yellow-500/20 text-yellow-400 border-2 border-yellow-500/50"
+                            ? "bg-green-500/20 text-green-400 border-2 border-green-500/50"
                             : "bg-red-500/20 text-red-400"
                     }`}
                 >

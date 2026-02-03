@@ -4,6 +4,8 @@ import { CheckCircle, Lightbulb, XCircle, X, ArrowLeft } from "lucide-react";
 
 interface StillPuzzleProps {
     onSolve?: (answer: string) => void;
+    showMCQ?: boolean;
+    level?: number;
 }
 
 const ANSWER = "ILLUSION";
@@ -11,7 +13,7 @@ const HINT = "Light explains shadows.\nShadows explain lies.";
 
 const ROOM_IMAGE = "/still-room.jpg";
 
-export const StillPuzzle = ({ onSolve }: StillPuzzleProps) => {
+export const StillPuzzle = ({ onSolve, showMCQ = false, level = 6 }: StillPuzzleProps) => {
     const [frameOpened, setFrameOpened] = useState(false);
     const [frameFlipped, setFrameFlipped] = useState(false);
     const [showHint, setShowHint] = useState(false);
@@ -19,6 +21,7 @@ export const StillPuzzle = ({ onSolve }: StillPuzzleProps) => {
     const [userInput, setUserInput] = useState("");
     const [inputError, setInputError] = useState(false);
     const [solved, setSolved] = useState(false);
+    const [selectedOption, setSelectedOption] = useState<number | null>(null);
 
     const handleFrameClick = () => {
         if (!frameOpened) {
@@ -41,22 +44,73 @@ export const StillPuzzle = ({ onSolve }: StillPuzzleProps) => {
         setFrameOpened(false);
     };
 
+    const getRiddleText = () => {
+        if (!showMCQ) {
+            return "OPTICAL ILLUSION";
+        }
+        switch(selectedOption) {
+            case 1:
+                return "I copy you, I only exist when you stand before me.";
+            case 2:
+                return "I melt as I give light.";
+            case 3:
+                return "I speak without a mouth, I hear as ears, I hold illusion in my screen.";
+            case 4:
+                return "I have buttons but I'm not a shirt, I control digital things from afar.";
+            default:
+                return "OPTICAL ILLUSION";
+        }
+    };
+
     const handleSubmit = () => {
         const trimmedInput = userInput.trim().toUpperCase();
-        if (trimmedInput === ANSWER) {
-            setSolved(true);
-            setFeedback("✓ CORRECT! ACCESS GRANTED!");
-            setInputError(false);
-            setTimeout(() => {
-                onSolve?.(ANSWER);
-            }, 1500);
-        } else {
-            setInputError(true);
-            setFeedback("✗ INCORRECT KEY. TRY AGAIN.");
-            setTimeout(() => {
+        
+        if (showMCQ) {
+            // MCQ mode (Layer 7)
+            const validAnswers = ["MIRROR", "CANDLE", "PHONE", "REMOTE"];
+            
+            if (validAnswers.includes(trimmedInput)) {
+                setFeedback("✓ CORRECT! ACCESS GRANTED!");
                 setInputError(false);
-                setFeedback("");
-            }, 2000);
+                
+                // Only proceed to next level if answer is PHONE
+                if (trimmedInput === "PHONE") {
+                    setSolved(true);
+                    setTimeout(() => {
+                        onSolve?.("ILLUSION");
+                    }, 1500);
+                } else {
+                    // For other correct answers, show success then allow trying again
+                    setTimeout(() => {
+                        setFeedback("");
+                        setUserInput("");
+                    }, 2000);
+                }
+            } else {
+                setInputError(true);
+                setFeedback("✗ INCORRECT KEY. TRY AGAIN.");
+                setTimeout(() => {
+                    setInputError(false);
+                    setFeedback("");
+                }, 2000);
+            }
+        } else {
+            // Original mode (Layer 6)
+            if (trimmedInput === ANSWER) {
+                setSolved(true);
+                setFeedback("✓ CORRECT! ACCESS GRANTED!");
+                setInputError(false);
+                setTimeout(() => {
+                    onSolve?.(ANSWER);
+                }, 1500);
+            } else {
+                setInputError(true);
+                setFeedback("✗ INCORRECT KEY. TRY AGAIN.");
+                setTimeout(() => {
+                    setInputError(false);
+                    setFeedback("");
+                }, 2000);
+            }
         }
     };
 
@@ -76,10 +130,10 @@ export const StillPuzzle = ({ onSolve }: StillPuzzleProps) => {
             {/* Header */}
             <div className="text-center mb-2 flex-shrink-0">
                 <h2 className="text-xs md:text-sm font-['Press_Start_2P'] text-primary mb-1">
-                    OBSERVATION PUZZLE
+                    SECURITY LAYER {level.toString().padStart(2, '0')}
                 </h2>
                 <p className="text-[9px] md:text-[10px] text-muted-foreground leading-relaxed">
-                    Look carefully at the image. Nothing in this room is broken — but something is wrong.
+                    Q. Why does an optical illusion happen?
                 </p>
             </div>
 
@@ -92,6 +146,88 @@ export const StillPuzzle = ({ onSolve }: StillPuzzleProps) => {
                         alt="A mysterious room"
                         className="w-full h-full object-cover"
                     />
+                    
+                    {/* MCQ Options on the wall - top right */}
+                    {showMCQ && (
+                        <div className="absolute top-[5%] right-[25%] space-y-2 max-w-[35%]">
+                        <button
+                            onClick={() => {
+                                if (!solved) {
+                                    setSelectedOption(1);
+                                    setFrameOpened(true);
+                                    setFrameFlipped(true);
+                                }
+                            }}
+                            disabled={solved}
+                            className={`w-full bg-black/70 backdrop-blur-sm border-2 rounded p-2 transition-all cursor-pointer hover:bg-black/80 hover:border-primary/50 ${
+                                selectedOption === 1 ? "border-primary bg-primary/20" : "border-primary/30"
+                            } ${solved ? "opacity-50 cursor-not-allowed" : ""}`}
+                        >
+                            <p className={`text-[8px] md:text-[10px] font-['Press_Start_2P'] leading-relaxed ${
+                                selectedOption === 1 ? "text-primary" : "text-yellow-400"
+                            }`}>
+                                1. The image is moving.
+                            </p>
+                        </button>
+                        <button
+                            onClick={() => {
+                                if (!solved) {
+                                    setSelectedOption(2);
+                                    setFrameOpened(true);
+                                    setFrameFlipped(true);
+                                }
+                            }}
+                            disabled={solved}
+                            className={`w-full bg-black/70 backdrop-blur-sm border-2 rounded p-2 transition-all cursor-pointer hover:bg-black/80 hover:border-primary/50 ${
+                                selectedOption === 2 ? "border-primary bg-primary/20" : "border-primary/30"
+                            } ${solved ? "opacity-50 cursor-not-allowed" : ""}`}
+                        >
+                            <p className={`text-[8px] md:text-[10px] font-['Press_Start_2P'] leading-relaxed ${
+                                selectedOption === 2 ? "text-primary" : "text-yellow-400"
+                            }`}>
+                                2. The light is changing.
+                            </p>
+                        </button>
+                        <button
+                            onClick={() => {
+                                if (!solved) {
+                                    setSelectedOption(3);
+                                    setFrameOpened(true);
+                                    setFrameFlipped(true);
+                                }
+                            }}
+                            disabled={solved}
+                            className={`w-full bg-black/70 backdrop-blur-sm border-2 rounded p-2 transition-all cursor-pointer hover:bg-black/80 hover:border-primary/50 ${
+                                selectedOption === 3 ? "border-primary bg-primary/20" : "border-primary/30"
+                            } ${solved ? "opacity-50 cursor-not-allowed" : ""}`}
+                        >
+                            <p className={`text-[8px] md:text-[10px] font-['Press_Start_2P'] leading-relaxed ${
+                                selectedOption === 3 ? "text-primary" : "text-yellow-400"
+                            }`}>
+                                3. The human eye cannot see everything correctly.
+                            </p>
+                        </button>
+                        <button
+                            onClick={() => {
+                                if (!solved) {
+                                    setSelectedOption(4);
+                                    setFrameOpened(true);
+                                    setFrameFlipped(true);
+                                }
+                            }}
+                            disabled={solved}
+                            className={`w-full bg-black/70 backdrop-blur-sm border-2 rounded p-2 transition-all cursor-pointer hover:bg-black/80 hover:border-primary/50 ${
+                                selectedOption === 4 ? "border-primary bg-primary/20" : "border-primary/30"
+                            } ${solved ? "opacity-50 cursor-not-allowed" : ""}`}
+                        >
+                            <p className={`text-[8px] md:text-[10px] font-['Press_Start_2P'] leading-relaxed ${
+                                selectedOption === 4 ? "text-primary" : "text-yellow-400"
+                            }`}>
+                                4. The object is damaged.
+                            </p>
+                        </button>
+                    </div>
+                    )}
                     
                     {/* Invisible clickable frame area - positioned over the painting */}
                     <motion.div
@@ -232,31 +368,20 @@ export const StillPuzzle = ({ onSolve }: StillPuzzleProps) => {
                                                 initial={{ opacity: 0 }}
                                                 animate={{ opacity: 1 }}
                                                 transition={{ delay: 0.5 }}
-                                                className="text-center"
+                                                className="text-center px-4"
                                             >
                                                 <p className="text-amber-100/40 text-[10px] tracking-[0.2em] mb-3">
                                                     THE MESSAGE READS
                                                 </p>
-                                                <div className="flex items-center justify-center gap-2 md:gap-3">
-                                                    <span 
-                                                        className="text-lg md:text-2xl font-serif text-amber-100/70"
-                                                        style={{ 
-                                                            fontFamily: 'Georgia, serif',
-                                                            textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
-                                                        }}
-                                                    >
-                                                        OPTICAL
-                                                    </span>
-                                                    <span 
-                                                        className="text-lg md:text-2xl font-serif font-bold text-black"
-                                                        style={{
-                                                            fontFamily: 'Georgia, serif',
-                                                            textShadow: '1px 1px 2px rgba(255,255,255,0.2)',
-                                                        }}
-                                                    >
-                                                        ILLUSION
-                                                    </span>
-                                                </div>
+                                                <p 
+                                                    className="text-sm md:text-base font-serif text-amber-100/70 leading-relaxed"
+                                                    style={{ 
+                                                        fontFamily: 'Georgia, serif',
+                                                        textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+                                                    }}
+                                                >
+                                                    {getRiddleText()}
+                                                </p>
                                             </motion.div>
 
                                             {/* Back button */}
@@ -278,32 +403,6 @@ export const StillPuzzle = ({ onSolve }: StillPuzzleProps) => {
                     </motion.div>
                 )}
             </AnimatePresence>
-
-            {/* Hint Section */}
-            <div className="mt-2 flex-shrink-0">
-                <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setShowHint(!showHint)}
-                    className="w-full flex items-center justify-center gap-2 px-3 py-1.5 bg-primary/20 hover:bg-primary/30 border border-primary/50 rounded text-[9px] text-primary transition-colors"
-                >
-                    <Lightbulb className="w-3 h-3" />
-                    {showHint ? "HIDE HINT" : "NEED A HINT?"}
-                </motion.button>
-
-                <AnimatePresence>
-                    {showHint && (
-                        <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="mt-2 p-2 bg-primary/10 border border-primary/30 rounded text-[9px] text-primary/80 leading-relaxed whitespace-pre-wrap text-center"
-                        >
-                            {HINT}
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </div>
 
             {/* Answer Input - Only shows after frame is flipped */}
             <AnimatePresence>
@@ -350,18 +449,18 @@ export const StillPuzzle = ({ onSolve }: StillPuzzleProps) => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         className={`mt-2 p-2 border rounded text-center flex-shrink-0 ${
-                            solved 
+                            feedback.includes("✓") 
                                 ? 'bg-green-900/30 border-green-500/50' 
                                 : 'bg-red-900/30 border-red-500/50'
                         }`}
                     >
                         <div className="flex items-center justify-center gap-2">
-                            {solved ? (
+                            {feedback.includes("✓") ? (
                                 <CheckCircle className="w-3 h-3 text-green-400" />
                             ) : (
                                 <XCircle className="w-3 h-3 text-red-400" />
                             )}
-                            <span className={`text-[10px] font-bold ${solved ? 'text-green-400' : 'text-red-400'}`}>
+                            <span className={`text-[10px] font-bold ${feedback.includes("✓") ? 'text-green-400' : 'text-red-400'}`}>
                                 {feedback}
                             </span>
                         </div>

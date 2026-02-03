@@ -17,12 +17,13 @@ import { ThreeDoorsPuzzle } from "@/components/ThreeDoorsPuzzle";
 import { GuidingHelperPuzzle } from "@/components/GuidingHelperPuzzle";
 import { MineSweeperPuzzle } from "@/components/MineSweeperPuzzle";
 import { FloorPlanPuzzle } from "@/components/FloorPlanPuzzle";
+import { MCQPuzzle } from "@/components/MCQPuzzle";
 import { LogOut, Shield, Zap, Info, Cpu, Terminal as TerminalIcon, SkipForward, SkipBack, Lightbulb, X } from "lucide-react";
 
 interface Level {
     id: number;
     title: string;
-    type?: "clock" | "url" | "crossword" | "morse" | "filesystem" | "avengers" | "codecracker" | "still" | "phonekeypad" | "guidinghelper" | "minesweeper" | "threedoors" | "floorplan" | "video" | "text";
+    type?: "clock" | "url" | "crossword" | "morse" | "filesystem" | "avengers" | "codecracker" | "still" | "phonekeypad" | "guidinghelper" | "minesweeper" | "threedoors" | "floorplan" | "video" | "text" | "mcq";
     content: string;
     hint?: string;
     targetTime?: string;
@@ -59,26 +60,27 @@ const DEMO_LEVELS: Level[] = [
     },
     {
         id: 4,
-        title: "Layer 04",
-        content: "Placeholder puzzle 4\n\nThis is a placeholder for level 4.\nUpdate with actual puzzle content.",
-        hint: "Hint for level 4",
-        answer: "ANSWER4"
-    },
-    {
-        id: 5,
-        title: "Layer 05 - Video Puzzle",
+        title: "Layer 04 - Video Puzzle",
         type: "video",
         content: "What's being communicated?",
         hint: "Sometimes the absence of sound speaks louder than words.",
         answer: "SILENCE"
     },
     {
-        id: 6,
-        title: "Layer 06 - System Archive",
+        id: 5,
+        title: "Layer 05 - System Archive",
         type: "filesystem",
         content: "Tom is in the library. He is reading. Find the book and discover the answer key hidden within the archives.",
         hint: "Click on the garbage bin to access the library. Find the book on the right side with the boy reading.",
         answer: "GATWAY"
+    },
+    {
+        id: 6,
+        title: "Layer 06 - Observation Puzzle",
+        type: "still",
+        content: "Look carefully at the image.\nNothing in this room is broken — but something is wrong.\n\nDo not assume everything is fixed.",
+        hint: "Light explains shadows. Shadows explain lies.",
+        answer: "ILLUSION"
     },
     {
         id: 7,
@@ -155,6 +157,7 @@ const Game = () => {
     const [showIntelBulb, setShowIntelBulb] = useState(false);
     const [intelOpen, setIntelOpen] = useState(false);
     const [timeElapsed, setTimeElapsed] = useState(0);
+    const [showMorseModal, setShowMorseModal] = useState(false);
 
     useEffect(() => {
         const teamData = sessionStorage.getItem("lockstep_team");
@@ -443,7 +446,7 @@ const Game = () => {
                                         initial={{ opacity: 0, scale: 0.98 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 1.02 }}
-                                        className="flex-1 flex flex-col items-center justify-center overflow-y-auto"
+                                        className="flex-1 flex flex-col overflow-y-auto p-4"
                                     >
                                         <DesktopPuzzle
                                             level={currentLevel}
@@ -492,6 +495,7 @@ const Game = () => {
                                     >
                                         <StillPuzzle
                                             onSolve={handleAnswer}
+                                            showMCQ={currentLevel === 7}
                                             level={currentLevel}
                                         />
                                     </motion.div>
@@ -545,6 +549,19 @@ const Game = () => {
                                             level={currentLevel}
                                         />
                                     </motion.div>
+                                ) : currentPuzzle?.type === "mcq" ? (
+                                    <motion.div
+                                        key={currentLevel}
+                                        initial={{ opacity: 0, scale: 0.98 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 1.02 }}
+                                        className="flex-1 flex flex-col min-h-0"
+                                    >
+                                        <MCQPuzzle
+                                            onSolve={handleAnswer}
+                                            level={currentLevel}
+                                        />
+                                    </motion.div>
                                 ) : currentPuzzle?.type === "threedoors" ? (
                                     <motion.div
                                         key={currentLevel}
@@ -564,28 +581,38 @@ const Game = () => {
                                         initial={{ opacity: 0, scale: 0.98 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 1.02 }}
-                                        className="flex-1 flex flex-col items-center justify-center min-h-0"
+                                        className="flex-1 flex flex-col min-h-0 p-4"
                                     >
-                                        <div className="w-full max-w-2xl">
-                                            <video 
-                                                controls 
-                                                muted
-                                                controlsList="nodownload nofullscreen noplaybackrate"
-                                                disablePictureInPicture
-                                                className="w-full rounded-lg border-2 border-primary/30 shadow-lg [&::-webkit-media-controls-volume-slider]:hidden [&::-webkit-media-controls-mute-button]:hidden [&::-webkit-media-controls-volume-control-container]:hidden"
-                                                src="/z070h4fejhrmr0cw3ppt8649t0_result_.mp4"
-                                                style={{ pointerEvents: 'auto' }}
-                                            >
-                                                Your browser does not support the video tag.
-                                            </video>
-                                            <p className="text-center text-xs text-muted-foreground mt-4">{currentPuzzle?.content}</p>
+                                        {/* Header */}
+                                        <div className="bg-gradient-to-r from-secondary/60 to-secondary/40 px-5 py-3.5 border-b-2 border-primary/30 flex items-center gap-3 flex-shrink-0 shadow-lg rounded-t mb-4">
+                                            <TerminalIcon className="h-5 w-5 text-primary animate-pulse" />
+                                            <span className="text-sm uppercase tracking-[0.25em] text-primary font-bold">
+                                                Security Layer {currentLevel.toString().padStart(2, '0')}
+                                            </span>
                                         </div>
-                                        <div className="mt-4 w-full max-w-md">
-                                            <AnswerInput
+                                        
+                                        <div className="flex-1 flex flex-col items-center justify-center">
+                                            <div className="w-full max-w-2xl">
+                                                <video 
+                                                    controls 
+                                                    muted
+                                                    controlsList="nodownload nofullscreen noplaybackrate"
+                                                    disablePictureInPicture
+                                                    className="w-full rounded-lg border-2 border-primary/30 shadow-lg [&::-webkit-media-controls-volume-slider]:hidden [&::-webkit-media-controls-mute-button]:hidden [&::-webkit-media-controls-volume-control-container]:hidden"
+                                                    src="/z070h4fejhrmr0cw3ppt8649t0_result_.mp4"
+                                                    style={{ pointerEvents: 'auto' }}
+                                                >
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                                <p className="text-center text-xs text-muted-foreground mt-4">{currentPuzzle?.content}</p>
+                                            </div>
+                                            <div className="mt-4 w-full max-w-md">
+                                                <AnswerInput
                                                 onSubmit={(answer) => handleAnswer(answer)}
                                                 correctAnswer={currentPuzzle?.answer || ""}
                                                 errorMessage="You are listening too Hard"
                                             />
+                                            </div>
                                         </div>
                                     </motion.div>
                                 ) : (
@@ -602,7 +629,7 @@ const Game = () => {
                             </AnimatePresence>
 
                             {/* Integrated Answer Area - Only for text puzzles */}
-                            {currentPuzzle?.type !== "clock" && currentPuzzle?.type !== "url" && currentPuzzle?.type !== "crossword" && currentPuzzle?.type !== "morse" && currentPuzzle?.type !== "filesystem" && currentPuzzle?.type !== "avengers" && currentPuzzle?.type !== "codecracker" && currentPuzzle?.type !== "still" && currentPuzzle?.type !== "phonekeypad" && currentPuzzle?.type !== "guidinghelper" && currentPuzzle?.type !== "threedoors" && currentPuzzle?.type !== "floorplan" && currentPuzzle?.type !== "video" && (
+                            {currentPuzzle?.type !== "clock" && currentPuzzle?.type !== "url" && currentPuzzle?.type !== "crossword" && currentPuzzle?.type !== "morse" && currentPuzzle?.type !== "filesystem" && currentPuzzle?.type !== "avengers" && currentPuzzle?.type !== "codecracker" && currentPuzzle?.type !== "still" && currentPuzzle?.type !== "phonekeypad" && currentPuzzle?.type !== "guidinghelper" && currentPuzzle?.type !== "threedoors" && currentPuzzle?.type !== "floorplan" && currentPuzzle?.type !== "video" && currentPuzzle?.type !== "mcq" && (
                                 <div className="mt-auto space-y-4">
                                     <div className="flex items-center gap-2 text-primary/60 text-[8px]">
                                         <span>{">"} ENTER DECRYPTION KEY...</span>
@@ -692,11 +719,29 @@ const Game = () => {
                                 </div>
                             ) : currentPuzzle?.type === "morse" ? (
                                 <div className="p-4 bg-black/40 border border-primary/20 rounded">
-                                    <img 
-                                        src="/morse-code.jpeg" 
-                                        alt="Morse Code Reference" 
-                                        className="w-full h-auto rounded border border-primary/30"
-                                    />
+                                    {!intelOpen ? (
+                                        <button
+                                            onClick={() => setIntelOpen(true)}
+                                            className="w-full text-[8px] uppercase tracking-wider font-semibold py-2 px-3 rounded transition-all duration-300 bg-primary/20 text-primary border border-primary/50 hover:bg-primary/30"
+                                        >
+                                            INTEL
+                                        </button>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            <img 
+                                                src="/morse-code.jpeg" 
+                                                alt="Morse Code Reference" 
+                                                className="w-full max-w-[70%] mx-auto h-auto rounded border border-primary/30 cursor-pointer hover:border-primary/50 transition-all"
+                                                onClick={() => setShowMorseModal(true)}
+                                            />
+                                            <button
+                                                onClick={() => setIntelOpen(false)}
+                                                className="w-full text-[7px] uppercase tracking-wider font-semibold py-1.5 px-3 rounded transition-all duration-300 bg-gray-800/50 text-gray-400 border border-gray-700/50 hover:bg-gray-700/50"
+                                            >
+                                                CLOSE
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             ) : currentPuzzle?.type === "avengers" ? (
                                 <div className="p-3 bg-black/40 border border-primary/20 rounded space-y-1 max-h-[200px] overflow-y-auto">
@@ -743,6 +788,29 @@ const Game = () => {
                 </section>
 
             </main>
+
+            {/* Morse Code Image Modal */}
+            {showMorseModal && (
+                <div 
+                    className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+                    onClick={() => setShowMorseModal(false)}
+                >
+                    <div className="relative max-w-xl w-full">
+                        <button
+                            onClick={() => setShowMorseModal(false)}
+                            className="absolute -top-10 right-0 text-primary hover:text-primary/80 transition-colors"
+                        >
+                            <X className="w-8 h-8" />
+                        </button>
+                        <img 
+                            src="/morse-code.jpeg" 
+                            alt="Morse Code Reference" 
+                            className="w-full h-auto rounded-lg border-4 border-primary/50"
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                    </div>
+                </div>
+            )}
 
             {/* Footer Bar */}
             <footer className="h-10 border-t-2 border-primary/10 bg-black/60 flex items-center justify-center text-[7px] md:text-[9px] text-primary/40 tracking-[0.5em] uppercase z-20 shrink-0">

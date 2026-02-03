@@ -26,6 +26,7 @@ interface DesktopPuzzleProps {
     };
     onCorrectAnswer: () => void;
     onWrongAnswer: () => void;
+    level?: number;
 }
 
 interface FileItem {
@@ -44,7 +45,7 @@ interface ClickZone {
     isTarget: boolean;
 }
 
-const DesktopPuzzle = ({ puzzle, onCorrectAnswer, onWrongAnswer }: DesktopPuzzleProps) => {
+const DesktopPuzzle = ({ puzzle, onCorrectAnswer, onWrongAnswer, level = 5 }: DesktopPuzzleProps) => {
     const [answer, setAnswer] = useState('');
     const [files, setFiles] = useState<FileItem[]>([]);
     const [openFile, setOpenFile] = useState<FileItem | null>(null);
@@ -136,9 +137,8 @@ const DesktopPuzzle = ({ puzzle, onCorrectAnswer, onWrongAnswer }: DesktopPuzzle
             <div className="bg-secondary/50 px-4 py-3 border-b border-border flex items-center gap-3 rounded-sm">
                 <Terminal className="h-4 w-4 text-primary" />
                 <span className="text-xs uppercase tracking-[0.2em] text-primary font-bold">
-                    Security Layer 15
+                    Security Layer {level.toString().padStart(2, '0')}
                 </span>
-                <span className="text-muted-foreground text-xs">// SYSTEM BREACH DETECTED</span>
             </div>
 
             {/* Question */}
