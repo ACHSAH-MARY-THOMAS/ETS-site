@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Terminal } from "lucide-react";
 
 interface CrosswordPuzzleProps {
     onSolve?: (answer: string) => void;
+    level?: number;
 }
 
 // Crossword grid structure
@@ -15,7 +17,7 @@ type Cell = {
     down?: boolean;
 };
 
-export const CrosswordPuzzle = ({ onSolve }: CrosswordPuzzleProps) => {
+export const CrosswordPuzzle = ({ onSolve, level = 9 }: CrosswordPuzzleProps) => {
     // Initialize crossword grid (7x7 grid based on the puzzle)
     const initializeGrid = (): (Cell | null)[][] => {
         const grid: (Cell | null)[][] = Array(7).fill(null).map(() => Array(7).fill(null));

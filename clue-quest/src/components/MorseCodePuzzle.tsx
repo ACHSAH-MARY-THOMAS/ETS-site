@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Terminal } from "lucide-react";
 
 interface MorseCodePuzzleProps {
     onSolve?: (answer: string) => void;
+    level?: number;
 }
 
-export const MorseCodePuzzle = ({ onSolve }: MorseCodePuzzleProps) => {
+export const MorseCodePuzzle = ({ onSolve, level = 3 }: MorseCodePuzzleProps) => {
     const [userAnswer, setUserAnswer] = useState("");
     const [feedback, setFeedback] = useState("");
     const [solved, setSolved] = useState(false);
@@ -38,18 +40,23 @@ export const MorseCodePuzzle = ({ onSolve }: MorseCodePuzzleProps) => {
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className="w-full max-w-4xl mx-auto p-4 space-y-6"
-        >
-            {/* Question/Title */}
-            <div className="text-center">
-                <p className="text-sm md:text-base font-['Press_Start_2P'] text-foreground leading-relaxed">
-                    Read the Dots and Dashes
-                </p>
+        <div className="w-full flex-1 min-h-0 glass-card-glow rounded-sm overflow-hidden transition-all duration-300 flex flex-col">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-secondary/60 to-secondary/40 px-5 py-3.5 border-b-2 border-primary/30 flex items-center gap-3 flex-shrink-0 shadow-lg">
+                <Terminal className="h-5 w-5 text-primary animate-pulse" />
+                <span className="text-sm uppercase tracking-[0.25em] text-primary font-bold">
+                    Security Layer {level.toString().padStart(2, '0')}
+                </span>
             </div>
+
+            {/* Content */}
+            <div className="px-3 py-2 space-y-4 flex flex-col flex-1 min-h-0 overflow-y-auto w-full">
+                {/* Question/Title */}
+                <div className="text-center">
+                    <p className="text-sm md:text-base font-['Press_Start_2P'] text-foreground leading-relaxed">
+                        Read the Dots and Dashes
+                    </p>
+                </div>
 
             {/* Morse Code Display */}
             <div className="border-4 border-primary/50 rounded-lg p-6 bg-black/60 space-y-4">
@@ -83,7 +90,7 @@ export const MorseCodePuzzle = ({ onSolve }: MorseCodePuzzleProps) => {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="border-4 border-primary/50 rounded-lg p-6 bg-primary/10 space-y-4"
+                    className="space-y-4"
                 >
                     <input
                         type="text"
@@ -124,6 +131,7 @@ export const MorseCodePuzzle = ({ onSolve }: MorseCodePuzzleProps) => {
                     {feedback}
                 </motion.div>
             )}
-        </motion.div>
+            </div>
+        </div>
     );
 };

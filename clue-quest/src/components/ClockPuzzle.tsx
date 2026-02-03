@@ -123,31 +123,41 @@ const ClockPuzzle = ({ onCorrectAnswer, onWrongAnswer, onSolve, level = 1 }: Clo
             )}
         >
             {/* Header */}
-            <div className="bg-secondary/50 px-4 py-3 border-b border-border flex items-center gap-3 flex-shrink-0">
-                <Terminal className="h-5 w-5 text-primary" />
-                <span className="text-sm uppercase tracking-[0.2em] text-primary font-bold">
+            <div className="bg-gradient-to-r from-secondary/60 to-secondary/40 px-5 py-3.5 border-b-2 border-primary/30 flex items-center gap-3 flex-shrink-0 shadow-lg relative">
+                <Terminal className="h-5 w-5 text-primary animate-pulse" />
+                <span className="text-sm uppercase tracking-[0.25em] text-primary font-bold">
                     Security Layer {level.toString().padStart(2, '0')}
                 </span>
-                <span className="text-muted-foreground text-sm">// AUTHOR: V. VON DOOM</span>
             </div>
 
             {/* Content */}
-            <div className="px-3 py-2 space-y-1 flex flex-col flex-1 min-h-0 overflow-hidden w-full">
+            <div className="px-3 py-2 space-y-1 flex flex-col flex-1 min-h-0 overflow-y-auto w-full">
                 {/* Puzzle Question */}
-                <div className="space-y-1 flex-1 flex flex-col min-h-0 overflow-hidden">
-                    <div className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                        <span className="text-primary">&gt;</span> TEMPORAL DECRYPTION CHALLENGE
+                <div className="space-y-1 flex flex-col">
+                    <div className="text-xs uppercase tracking-[0.15em] text-muted-foreground flex items-center gap-2 py-1 border-l-2 border-primary/50 pl-3 bg-primary/5 flex-shrink-0">
+                        <span className="text-primary font-bold text-sm">&gt;</span> 
+                        <span className="text-primary/90 font-semibold">TEMPORAL DECRYPTION CHALLENGE</span>
                     </div>
 
-                    <div className="glass-card p-4 rounded-sm flex-1 min-h-0 flex flex-col justify-between overflow-hidden">
-                        <p className="text-foreground text-sm leading-relaxed flex-shrink-0">
-                            Check the current time on the clock. The directions can change time.
-                            Rotate the arrows to match the correct sequence.
-                        </p>
+                    <div className="glass-card p-3 md:p-4 rounded-sm flex flex-col gap-3 border border-primary/10">
+                        {/* Text Section */}
+                        <div className="text-foreground flex-shrink-0 text-center space-y-2">
+                            <div className="space-y-1">
+                                <p className="text-xs md:text-sm font-medium tracking-wide">TIME IS NOT A SUGGESTION. IT IS A SEQUENCE.</p>
+                            </div>
+                            <div className="space-y-1">
+                                <p className="text-xs md:text-sm font-medium tracking-wide">THIS SYSTEM DOES NOT FOLLOW YOUR CLOCK. YOU MUST FOLLOW MINE.</p>
+                            </div>
+                            <div className="pt-1 border-t border-primary/20">
+                                <p className="text-[10px] md:text-xs text-muted-foreground/80 tracking-wider italic">
+                                    SYNCHRONIZE THE ARROWS TO MATCH THE AUTHORIZED TIME PATTERN.
+                                </p>
+                            </div>
+                        </div>
 
                         {/* Clock Display */}
-                        <div className="flex flex-col justify-center items-center flex-1">
-                            <div className="relative w-52 h-52">
+                        <div className="flex justify-center items-center flex-shrink-0">
+                            <div className="relative w-36 h-36 md:w-44 md:h-44">
                                 {/* Clock Circle */}
                                 <svg viewBox="0 0 200 200" className="w-full h-full">
                                     {/* Clock face */}
@@ -187,9 +197,9 @@ const ClockPuzzle = ({ onCorrectAnswer, onWrongAnswer, onSolve, level = 1 }: Clo
                                         x1="100"
                                         y1="100"
                                         x2="100"
-                                        y2="45"
+                                        y2="55"
                                         stroke="currentColor"
-                                        strokeWidth="6"
+                                        strokeWidth="5"
                                         strokeLinecap="round"
                                         className="text-primary"
                                     />
@@ -214,10 +224,10 @@ const ClockPuzzle = ({ onCorrectAnswer, onWrongAnswer, onSolve, level = 1 }: Clo
 
                         {/* Arrow Controls */}
                         <div className="flex-shrink-0">
-                            <div className="text-xs uppercase tracking-widest text-muted-foreground mb-3 text-center">
+                            <div className="text-[10px] md:text-xs uppercase tracking-widest text-muted-foreground mb-2 text-center">
                                 Rotate arrows to match the pattern
                             </div>
-                            <div className="flex justify-center gap-4">
+                            <div className="flex justify-center gap-2 md:gap-3">
                                 {arrows.map((direction, index) => {
                                     const Icon = directionIcons[direction];
                                     return (
@@ -226,24 +236,26 @@ const ClockPuzzle = ({ onCorrectAnswer, onWrongAnswer, onSolve, level = 1 }: Clo
                                             onClick={() => rotateArrow(index)}
                                             disabled={isSuccess}
                                             className={cn(
-                                                'w-16 h-16 rounded-sm glass-card flex items-center justify-center',
+                                                'w-12 h-12 md:w-14 md:h-14 rounded-sm glass-card flex items-center justify-center',
                                                 'transition-all duration-200 hover:scale-110 hover:border-primary/50',
                                                 'active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed',
                                                 'border border-border'
                                             )}
-                                            style={{
-                                                transform: `rotate(${directionRotations[direction]}deg)`,
-                                            }}
                                         >
-                                            <ArrowUp className="h-7 w-7 text-primary" />
+                                            <ArrowUp 
+                                                className="h-6 w-6 md:h-7 md:w-7 text-primary transition-transform duration-200" 
+                                                style={{
+                                                    transform: `rotate(${directionRotations[direction]}deg)`,
+                                                }}
+                                            />
                                         </button>
                                     );
                                 })}
                             </div>
                             {/* Direction Indicators */}
-                            <div className="flex justify-center gap-4 mt-2">
+                            <div className="flex justify-center gap-2 md:gap-3 mt-1.5">
                                 {arrowNumbers.map((num, index) => (
-                                    <div key={index} className="w-16 text-center text-primary font-bold text-lg">
+                                    <div key={index} className="w-12 md:w-14 text-center text-primary font-bold text-base md:text-lg">
                                         {num}
                                     </div>
                                 ))}
@@ -254,19 +266,25 @@ const ClockPuzzle = ({ onCorrectAnswer, onWrongAnswer, onSolve, level = 1 }: Clo
 
                 {/* Access Denied Message */}
                 {showDenied && (
-                    <div className="flex items-center justify-center gap-2 py-2 bg-destructive/10 border border-destructive/50 rounded-sm animate-fade-in flex-shrink-0">
+                    <div className="flex flex-col items-center justify-center gap-1 py-2 bg-destructive/10 border border-destructive/50 rounded-sm animate-fade-in flex-shrink-0">
                         <Skull className="h-4 w-4 text-destructive" />
                         <span className="text-destructive font-bold text-xs uppercase tracking-wider">
-                            Access Denied. Doom is watching.
+                            TIME DESYNCHRONIZED.
+                        </span>
+                        <span className="text-destructive font-bold text-xs uppercase tracking-wider">
+                            REALIGN REQUIRED.
                         </span>
                     </div>
                 )}
 
                 {/* Success Message */}
                 {isSuccess && (
-                    <div className="flex items-center justify-center gap-2 py-2 bg-primary/10 border border-primary/50 rounded-sm animate-fade-in flex-shrink-0">
+                    <div className="flex flex-col items-center justify-center gap-1 py-2 bg-primary/10 border border-primary/50 rounded-sm animate-fade-in flex-shrink-0">
                         <span className="text-primary font-bold text-xs uppercase tracking-wider">
-                            Temporal Lock Breached. Proceeding...
+                            TEMPORAL SYNC ACHIEVED.
+                        </span>
+                        <span className="text-primary font-bold text-xs uppercase tracking-wider">
+                            LAYER 01 BREACHED.
                         </span>
                     </div>
                 )}

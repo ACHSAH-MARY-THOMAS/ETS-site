@@ -7,9 +7,10 @@ interface AnswerInputProps {
     disabled?: boolean;
     cooldown?: number;
     compactView?: boolean;
+    errorMessage?: string;
 }
 
-export const AnswerInput = ({ onSubmit, disabled = false, cooldown = 0, compactView = false }: AnswerInputProps) => {
+export const AnswerInput = ({ onSubmit, disabled = false, cooldown = 0, compactView = false, errorMessage }: AnswerInputProps) => {
     const [answer, setAnswer] = useState("");
     const [status, setStatus] = useState<"idle" | "loading" | "error" | "success">("idle");
     const [remainingCooldown, setRemainingCooldown] = useState(0);
@@ -102,7 +103,7 @@ export const AnswerInput = ({ onSubmit, disabled = false, cooldown = 0, compactV
                             className="flex items-center justify-center gap-2 text-destructive text-[8px] tracking-widest"
                         >
                             <AlertCircle className="w-3 h-3" />
-                            <span>ACCESS_DENIED // INCORRECT_KEY</span>
+                            <span>{errorMessage || "ACCESS_DENIED // INCORRECT_KEY"}</span>
                         </motion.div>
                     )}
                     {status === "success" && (
@@ -175,7 +176,7 @@ export const AnswerInput = ({ onSubmit, disabled = false, cooldown = 0, compactV
                         className="flex items-center justify-center gap-2 mt-3 text-destructive"
                     >
                         <AlertCircle className="w-4 h-4" />
-                        <span className="text-sm font-mono">INCORRECT KEY</span>
+                        <span className="text-sm font-mono">{errorMessage || "INCORRECT KEY"}</span>
                     </motion.div>
                 )}
                 {remainingCooldown > 0 && status === "idle" && (

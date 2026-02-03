@@ -63,9 +63,9 @@ const DesktopPuzzle = ({ puzzle, onCorrectAnswer, onWrongAnswer }: DesktopPuzzle
     // Initialize files
     useEffect(() => {
         const fileNames = [
-            'sys_log.txt', 'dump_01', 'temp_x', 'check garbage bin', 'y_data', 'config', 'user_a',
-            'cache_v', 'bin_check', 'check garbage bin', 'x_files', 'sys_32', 'garbage bin', 'run_exe',
-            'data_z', 'audit_log', 'temp_02', 'kernel_panic', 'doomsday_notes', 'doom_v1', 'boot_seq'
+            'sys_log.txt', 'dump_01', 'temp_x', 'check garbage bin',
+            'y_data', 'garbage bin', 'user_a', 'cache_v',
+            'bin_check', 'check garbage bin', 'x_files', 'config'
         ];
 
         const newFiles: FileItem[] = fileNames.map((name, index) => ({
@@ -159,36 +159,195 @@ const DesktopPuzzle = ({ puzzle, onCorrectAnswer, onWrongAnswer }: DesktopPuzzle
                 />
 
                 {/* Files Grid */}
-                <div className="grid grid-cols-3 gap-4 p-6 relative z-10 selection:bg-transparent overflow-y-auto h-full pr-2 scrollbar-thin scrollbar-thumb-primary/40 scrollbar-track-transparent hover:scrollbar-thumb-primary/60">
-                    {files.map((file) => (
-                        <div
-                            key={file.id}
-                            onClick={() => handleFileClick(file)}
-                            className="flex flex-col items-center justify-center p-2 gap-2 cursor-pointer hover:bg-white/5 rounded-lg transition-colors group"
-                        >
-                            <div className="relative">
-                                {/* Custom Yellow Folder Icon */}
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    fill="#fbbf24"
-                                    stroke="currentColor"
-                                    strokeWidth="1"
-                                    className="w-12 h-12 drop-shadow-lg"
-                                >
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
-                                </svg>
-                                {file.type === 'bin' && (
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <span className="text-[8px] font-bold text-black/50 uppercase tracking-tighter">BIN</span>
+                <div className="grid grid-cols-4 gap-4 p-6 relative z-10 selection:bg-transparent overflow-y-auto h-full pr-2 scrollbar-thin scrollbar-thumb-primary/40 scrollbar-track-transparent hover:scrollbar-thumb-primary/60">
+                    {files.map((file, index) => {
+                        // Different professional Windows-style icons
+                        const getFileIcon = () => {
+                            if (file.type === 'bin') {
+                                // Windows 10 style Recycle Bin
+                                return (
+                                    <div className="w-16 h-16 relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="w-full h-full drop-shadow-xl">
+                                            <defs>
+                                                <linearGradient id="recycleBin" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                    <stop offset="0%" style={{stopColor: '#E8F4FC'}} />
+                                                    <stop offset="50%" style={{stopColor: '#B8D8F0'}} />
+                                                    <stop offset="100%" style={{stopColor: '#6AAEE7'}} />
+                                                </linearGradient>
+                                                <filter id="shadow">
+                                                    <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.3"/>
+                                                </filter>
+                                            </defs>
+                                            {/* Bin body */}
+                                            <path d="M16 24 L20 56 Q20 58 22 58 L42 58 Q44 58 44 56 L48 24 Z" fill="url(#recycleBin)" filter="url(#shadow)"/>
+                                            {/* Bin top rim */}
+                                            <rect x="14" y="20" width="36" height="6" rx="1" fill="#4A90E2" opacity="0.9"/>
+                                            {/* Recycling arrows */}
+                                            <path d="M28 35 L30 30 L32 35 M30 30 L30 42" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round"/>
+                                            <path d="M36 35 Q38 37 36 40 Q34 37 36 35" fill="white"/>
+                                            <path d="M24 38 Q22 36 24 33 Q26 36 24 38" fill="white"/>
+                                            {/* Highlight */}
+                                            <ellipse cx="38" cy="28" rx="4" ry="3" fill="white" opacity="0.4"/>
+                                        </svg>
                                     </div>
-                                )}
+                                );
+                            }
+                            
+                            // Windows-style file icons
+                            const iconVariants = [
+                                // Notepad Text File
+                                <div key="notepad" className="w-16 h-16 relative">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="w-full h-full drop-shadow-xl">
+                                        <defs>
+                                            <linearGradient id="paper" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                <stop offset="0%" style={{stopColor: '#FFFFFF'}} />
+                                                <stop offset="100%" style={{stopColor: '#E8E8E8'}} />
+                                            </linearGradient>
+                                        </defs>
+                                        <path d="M14 8 L42 8 L50 16 L50 56 L14 56 Z" fill="url(#paper)" stroke="#B0B0B0" strokeWidth="1"/>
+                                        <path d="M42 8 L42 16 L50 16" fill="#D0D0D0" stroke="#B0B0B0" strokeWidth="1"/>
+                                        <line x1="20" y1="24" x2="44" y2="24" stroke="#4A90E2" strokeWidth="1.5"/>
+                                        <line x1="20" y1="30" x2="44" y2="30" stroke="#4A90E2" strokeWidth="1.5"/>
+                                        <line x1="20" y1="36" x2="38" y2="36" stroke="#4A90E2" strokeWidth="1.5"/>
+                                        <line x1="20" y1="42" x2="44" y2="42" stroke="#B0B0B0" strokeWidth="1"/>
+                                        <line x1="20" y1="48" x2="35" y2="48" stroke="#B0B0B0" strokeWidth="1"/>
+                                    </svg>
+                                </div>,
+                                
+                                // Classic Yellow Folder
+                                <div key="folder" className="w-16 h-16 relative">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="w-full h-full drop-shadow-xl">
+                                        <defs>
+                                            <linearGradient id="folderTop" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                <stop offset="0%" style={{stopColor: '#FFEB3B'}} />
+                                                <stop offset="100%" style={{stopColor: '#FBC02D'}} />
+                                            </linearGradient>
+                                            <linearGradient id="folderBottom" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                <stop offset="0%" style={{stopColor: '#FBC02D'}} />
+                                                <stop offset="100%" style={{stopColor: '#F57F17'}} />
+                                            </linearGradient>
+                                        </defs>
+                                        {/* Folder back */}
+                                        <path d="M8 20 L8 52 Q8 54 10 54 L54 54 Q56 54 56 52 L56 22 Q56 20 54 20 Z" fill="url(#folderBottom)"/>
+                                        {/* Folder tab */}
+                                        <path d="M8 20 L8 16 Q8 14 10 14 L24 14 L28 18 L54 18 Q56 18 56 20 L56 22 L8 22 Z" fill="url(#folderTop)"/>
+                                        {/* Highlight */}
+                                        <ellipse cx="46" cy="24" rx="8" ry="4" fill="white" opacity="0.2"/>
+                                        {/* Shadow */}
+                                        <path d="M10 52 L54 52" stroke="#C6A700" strokeWidth="1" opacity="0.5"/>
+                                    </svg>
+                                </div>,
+                                
+                                // Code/Script File (green)
+                                <div key="script" className="w-16 h-16 relative">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="w-full h-full drop-shadow-xl">
+                                        <defs>
+                                            <linearGradient id="scriptFile" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                <stop offset="0%" style={{stopColor: '#81C784'}} />
+                                                <stop offset="100%" style={{stopColor: '#388E3C'}} />
+                                            </linearGradient>
+                                        </defs>
+                                        <path d="M14 8 L42 8 L50 16 L50 56 L14 56 Z" fill="url(#scriptFile)" stroke="#2E7D32" strokeWidth="1"/>
+                                        <path d="M42 8 L42 16 L50 16" fill="#66BB6A" stroke="#2E7D32" strokeWidth="1"/>
+                                        <text x="22" y="35" fill="white" fontSize="16" fontFamily="Consolas, monospace" fontWeight="bold">&lt;/&gt;</text>
+                                        <circle cx="20" cy="44" r="2" fill="#C8E6C9"/>
+                                        <circle cx="28" cy="44" r="2" fill="#C8E6C9"/>
+                                        <circle cx="36" cy="44" r="2" fill="#C8E6C9"/>
+                                    </svg>
+                                </div>,
+                                
+                                // Database File (blue cylinder)
+                                <div key="database" className="w-16 h-16 relative">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="w-full h-full drop-shadow-xl">
+                                        <defs>
+                                            <linearGradient id="dbGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                <stop offset="0%" style={{stopColor: '#64B5F6'}} />
+                                                <stop offset="100%" style={{stopColor: '#1976D2'}} />
+                                            </linearGradient>
+                                            <radialGradient id="dbTop">
+                                                <stop offset="0%" style={{stopColor: '#90CAF9'}} />
+                                                <stop offset="100%" style={{stopColor: '#42A5F5'}} />
+                                            </radialGradient>
+                                        </defs>
+                                        <ellipse cx="32" cy="18" rx="18" ry="8" fill="url(#dbTop)" stroke="#1565C0" strokeWidth="1"/>
+                                        <path d="M14 18 L14 28 Q14 32 32 32 Q50 32 50 28 L50 18" fill="url(#dbGrad)" stroke="#1565C0" strokeWidth="1"/>
+                                        <ellipse cx="32" cy="28" rx="18" ry="4" fill="#1976D2" opacity="0.3"/>
+                                        <path d="M14 28 L14 38 Q14 42 32 42 Q50 42 50 38 L50 28" fill="url(#dbGrad)" stroke="#1565C0" strokeWidth="1"/>
+                                        <ellipse cx="32" cy="38" rx="18" ry="4" fill="#1976D2" opacity="0.3"/>
+                                        <path d="M14 38 L14 48 Q14 52 32 52 Q50 52 50 48 L50 38" fill="url(#dbGrad)" stroke="#1565C0" strokeWidth="1"/>
+                                        <ellipse cx="32" cy="48" rx="18" ry="4" fill="#0D47A1"/>
+                                    </svg>
+                                </div>,
+                                
+                                // Settings/Config File (gear)
+                                <div key="settings" className="w-16 h-16 relative">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="w-full h-full drop-shadow-xl">
+                                        <defs>
+                                            <linearGradient id="gearGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                <stop offset="0%" style={{stopColor: '#FFB74D'}} />
+                                                <stop offset="100%" style={{stopColor: '#F57C00'}} />
+                                            </linearGradient>
+                                            <radialGradient id="gearCenter">
+                                                <stop offset="0%" style={{stopColor: '#FFF3E0'}} />
+                                                <stop offset="100%" style={{stopColor: '#FFB74D'}} />
+                                            </radialGradient>
+                                        </defs>
+                                        <circle cx="32" cy="32" r="24" fill="url(#gearGrad)" stroke="#E65100" strokeWidth="1"/>
+                                        {/* Gear teeth */}
+                                        {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, i) => {
+                                            const rad = (angle * Math.PI) / 180;
+                                            const x = 32 + 24 * Math.cos(rad);
+                                            const y = 32 + 24 * Math.sin(rad);
+                                            return <circle key={i} cx={x} cy={y} r="3" fill="#E65100"/>;
+                                        })}
+                                        <circle cx="32" cy="32" r="14" fill="url(#gearCenter)" stroke="#E65100" strokeWidth="1"/>
+                                        <circle cx="32" cy="32" r="6" fill="#E65100"/>
+                                        <ellipse cx="28" cy="26" rx="3" ry="2" fill="white" opacity="0.4"/>
+                                    </svg>
+                                </div>,
+                                
+                                // Archive/Zip File (compressed)
+                                <div key="zip" className="w-16 h-16 relative">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="w-full h-full drop-shadow-xl">
+                                        <defs>
+                                            <linearGradient id="zipFile" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                <stop offset="0%" style={{stopColor: '#BA68C8'}} />
+                                                <stop offset="100%" style={{stopColor: '#7B1FA2'}} />
+                                            </linearGradient>
+                                        </defs>
+                                        <path d="M14 8 L42 8 L50 16 L50 56 L14 56 Z" fill="url(#zipFile)" stroke="#4A148C" strokeWidth="1"/>
+                                        <path d="M42 8 L42 16 L50 16" fill="#9C27B0" stroke="#4A148C" strokeWidth="1"/>
+                                        {/* Zipper */}
+                                        <rect x="28" y="12" width="8" height="3" fill="#E1BEE7"/>
+                                        <rect x="30" y="15" width="4" height="3" fill="#CE93D8"/>
+                                        <rect x="28" y="18" width="8" height="3" fill="#E1BEE7"/>
+                                        <rect x="30" y="21" width="4" height="3" fill="#CE93D8"/>
+                                        <rect x="28" y="24" width="8" height="3" fill="#E1BEE7"/>
+                                        {/* Zipper pull */}
+                                        <circle cx="32" cy="38" r="6" fill="#FFD54F" stroke="#F57F17" strokeWidth="1"/>
+                                        <circle cx="32" cy="38" r="3" fill="#4A148C"/>
+                                    </svg>
+                                </div>,
+                            ];
+                            
+                            return iconVariants[index % iconVariants.length];
+                        };
+                        
+                        return (
+                            <div
+                                key={file.id}
+                                onClick={() => handleFileClick(file)}
+                                className="flex flex-col items-center justify-center p-2 gap-2 cursor-pointer hover:bg-white/5 rounded-lg transition-all group"
+                            >
+                                <div className="relative transform transition-transform group-hover:scale-110">
+                                    {getFileIcon()}
+                                </div>
+                                <span className="text-[10px] text-white/90 font-sans text-center break-all px-2 py-1 group-hover:text-white group-hover:bg-blue-500/80 rounded transition-colors max-w-full">
+                                    {file.name}
+                                </span>
                             </div>
-                            <span className="text-xs text-primary/80 font-mono text-center break-all px-1 group-hover:text-primary bg-black/50 rounded px-2 py-0.5">
-                                {file.name}
-                            </span>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
 

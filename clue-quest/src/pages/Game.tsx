@@ -8,16 +8,21 @@ import ClockPuzzle from "@/components/ClockPuzzle";
 import { URLPuzzle } from "@/components/URLPuzzle";
 import { CrosswordPuzzle } from "@/components/CrosswordPuzzle";
 import { MorseCodePuzzle } from "@/components/MorseCodePuzzle";
-import { FileSystemPuzzle } from "@/components/FileSystemPuzzle";
 import DesktopPuzzle from "@/components/DesktopPuzzle";
 import { AvengersPuzzle } from "@/components/AvengersPuzzle";
 import { CodeCrackerPuzzle } from "@/components/CodeCrackerPuzzle";
-import { LogOut, Shield, Zap, Info, Cpu, Terminal as TerminalIcon } from "lucide-react";
+import { StillPuzzle } from "@/components/StillPuzzle";
+import { PhoneKeypadPuzzle } from "@/components/PhoneKeypadPuzzle";
+import { ThreeDoorsPuzzle } from "@/components/ThreeDoorsPuzzle";
+import { GuidingHelperPuzzle } from "@/components/GuidingHelperPuzzle";
+import { MineSweeperPuzzle } from "@/components/MineSweeperPuzzle";
+import { FloorPlanPuzzle } from "@/components/FloorPlanPuzzle";
+import { LogOut, Shield, Zap, Info, Cpu, Terminal as TerminalIcon, SkipForward, SkipBack, Lightbulb, X } from "lucide-react";
 
 interface Level {
     id: number;
     title: string;
-    type?: "clock" | "url" | "crossword" | "morse" | "filesystem" | "avengers" | "codecracker" | "text";
+    type?: "clock" | "url" | "crossword" | "morse" | "filesystem" | "avengers" | "codecracker" | "still" | "phonekeypad" | "guidinghelper" | "minesweeper" | "threedoors" | "floorplan" | "video" | "text";
     content: string;
     hint?: string;
     targetTime?: string;
@@ -31,94 +36,96 @@ const DEMO_LEVELS: Level[] = [
         id: 1,
         title: "Layer 01",
         type: "clock",
-        content: "Check the current time.",
+        content: "TIME IS NOT A SUGGESTION.\nIT IS A SEQUENCE.\n\nTHIS SYSTEM DOES NOT FOLLOW YOUR CLOCK.\nYOU MUST FOLLOW MINE.\n\nSYNCHRONIZE THE ARROWS\nTO MATCH THE AUTHORIZED TIME PATTERN.",
         targetTime: "03:15",
         directions: ["UP", "UP", "UP", "RIGHT", "RIGHT", "RIGHT"],
-        hint: "Rotate the arrow and set the clock digits to match the target time.",
+        hint: "DOOM DESIGNED THIS LAYER\nTO ELIMINATE HUMAN IMPRECISION.\n\nONLY ONE SEQUENCE IS VALID.\nALL OTHERS ARE ERRORS.",
         answer: "CLOCK_SOLVED"
     },
     {
         id: 2,
         title: "Layer 02",
         type: "url",
-        content: "URL: Comparison is bad for soul, but it is a functional necessity in escape system survival.",
-        hint: "Follow the URL with 'esc' in it. Then find 'esc' in the code blocks. esc → crack",
+        content: "COMPARISON IS PAINFUL.\nBUT NECESSARY.\n\nPATTERNS REVEAL WHAT INTUITION HIDES.\n\nIDENTIFY THE FRAGMENT\nTHAT OBEYS THE ESCAPE PROTOCOL.",
         answer: "CRACK"
     },
     {
         id: 3,
-        title: "Layer 03 - Crossword Puzzle",
-        type: "crossword",
-        content: "Solve the crossword puzzle clues to reveal the final message.",
-        hint: "When all answers are correct, combine the words to reveal the hidden message: LIGHT THE WAY BACK HOME",
-        answer: "LIGHT THE WAY BACK HOME"
-    },
-    {
-        id: 4,
-        title: "Layer 04 - Morse Code",
+        title: "Layer 03 - Morse Code",
         type: "morse",
         content: "Read the dots and dashes to decode the hidden message.",
         hint: "Hop to the word given and escape key is a word in it.",
         answer: "TREND"
     },
     {
+        id: 4,
+        title: "Layer 04",
+        content: "Placeholder puzzle 4\n\nThis is a placeholder for level 4.\nUpdate with actual puzzle content.",
+        hint: "Hint for level 4",
+        answer: "ANSWER4"
+    },
+    {
         id: 5,
-        title: "Layer 05 - System Archive",
+        title: "Layer 05 - Video Puzzle",
+        type: "video",
+        content: "What's being communicated?",
+        hint: "Sometimes the absence of sound speaks louder than words.",
+        answer: "SILENCE"
+    },
+    {
+        id: 6,
+        title: "Layer 06 - System Archive",
         type: "filesystem",
         content: "Tom is in the library. He is reading. Find the book and discover the answer key hidden within the archives.",
         hint: "Click on the garbage bin to access the library. Find the book on the right side with the boy reading.",
         answer: "GATWAY"
     },
     {
-        id: 6,
-        title: "Layer 06 - Avengers Timeline",
-        type: "avengers",
-        content: "Identify the Avenger described in each statement and arrange their movies in the correct timeline order.",
-        hint: "Identify each hero first, then think about when their first solo movie came out in the MCU timeline.",
-        answer: "15423"
+        id: 7,
+        title: "Layer 07 - Observation Puzzle",
+        type: "still",
+        content: "Look carefully at the image.\nNothing in this room is broken — but something is wrong.\n\nDo not assume everything is fixed.",
+        hint: "Light explains shadows. Shadows explain lies.",
+        answer: "ILLUSION"
     },
     {
-        id: 7,
-        title: "Layer 07 - Crack the Code",
+        id: 8,
+        title: "Layer 08 - Primitive Comms",
+        type: "phonekeypad",
+        content: "You've just found a primitive comms device. Everyone you are familiar with is trapped. Both of you must find someone who is NOT acquainted with them.",
+        hint: "Look for someone who doesn't belong in this universe...",
+        answer: "SHAKTHIMAN"
+    },
+    {
+        id: 9,
+        title: "Layer 09 - Crossword Puzzle",
+        type: "crossword",
+        content: "Solve the crossword puzzle clues to reveal the final message.",
+        hint: "When all answers are correct, combine the words to reveal the hidden message.",
+        answer: "LIGHT THE WAY BACK HOME"
+    },
+    {
+        id: 10,
+        title: "Layer 10 - Doom's Lair",
+        type: "floorplan",
+        content: "LIGHT THE PATH TO DOOM'S DOOR.\n\nNAVIGATE THE FLOOR PLAN OF DOOM'S LAIR.\nSOME ROOMS CONTAIN BOOBY TRAPS.\n\nILLUMINATE THE 3 SAFE ROOMS\nTO UNLOCK DOOM'S DOOR.",
+        answer: "SAFEPATH"
+    },
+    {
+        id: 11,
+        title: "Layer 11 - Binary Door Sequence",
+        type: "threedoors",
+        content: "Open doors according to binary. Initialize with 000. When clicked on any door, it becomes 1 and others become 0. Complete this 8 times to reach 111.",
+        hint: "Click strategically - each door click sets that door to 1 and others to 0. After exactly 8 clicks, all three must be at state 1 (111).",
+        answer: "111"
+    },
+    {
+        id: 12,
+        title: "Layer 12 - Crack the Code",
         type: "codecracker",
         content: "Can you crack the code? Use logic to deduce the 3-digit combination.",
         hint: "Analyze each clue systematically. Eliminate impossible digits first.",
         answer: "718"
-    },
-    {
-        id: 8,
-        title: "Layer 08",
-        content: "Placeholder puzzle 8\n\nThis is a placeholder for level 8.\nUpdate with actual puzzle content.",
-        hint: "Hint for level 8",
-        answer: "ANSWER8"
-    },
-    {
-        id: 9,
-        title: "Layer 09",
-        content: "Placeholder puzzle 9\n\nThis is a placeholder for level 9.\nUpdate with actual puzzle content.",
-        hint: "Hint for level 9",
-        answer: "ANSWER9"
-    },
-    {
-        id: 10,
-        title: "Layer 10",
-        content: "Placeholder puzzle 10\n\nThis is a placeholder for level 10.\nUpdate with actual puzzle content.",
-        hint: "Hint for level 10",
-        answer: "ANSWER10"
-    },
-    {
-        id: 11,
-        title: "Layer 11",
-        content: "Placeholder puzzle 11\n\nThis is a placeholder for level 11.\nUpdate with actual puzzle content.",
-        hint: "Hint for level 11",
-        answer: "ANSWER11"
-    },
-    {
-        id: 12,
-        title: "Layer 12",
-        content: "Placeholder puzzle 12\n\nThis is a placeholder for level 12.\nUpdate with actual puzzle content.",
-        hint: "Hint for level 12",
-        answer: "ANSWER12"
     },
     {
         id: 13,
@@ -130,13 +137,6 @@ const DEMO_LEVELS: Level[] = [
     {
         id: 14,
         title: "Layer 14",
-        content: "Placeholder puzzle 14\n\nThis is a placeholder for level 14.\nUpdate with actual puzzle content.",
-        hint: "Hint for level 14",
-        answer: "ANSWER14"
-    },
-    {
-        id: 15,
-        title: "Layer 15",
         content: "THE ULTIMATE TEST\n\nThis is a placeholder for the final level.\nUpdate with actual puzzle content.\n\nCombine everything you've learned.",
         hint: "The final challenge awaits.",
         answer: "VICTORY"
@@ -152,6 +152,9 @@ const Game = () => {
     const [agent1, setAgent1] = useState("");
     const [agent2, setAgent2] = useState("");
     const [successDialogue, setSuccessDialogue] = useState<string | null>(null);
+    const [showIntelBulb, setShowIntelBulb] = useState(false);
+    const [intelOpen, setIntelOpen] = useState(false);
+    const [timeElapsed, setTimeElapsed] = useState(0);
 
     useEffect(() => {
         const teamData = sessionStorage.getItem("lockstep_team");
@@ -172,6 +175,26 @@ const Game = () => {
             setCurrentLevel(parseInt(savedLevel));
         }
     }, [navigate]);
+
+    useEffect(() => {
+        // Timer for showing the intel bulb after 5 minutes (300 seconds) - only for layer 1
+        if (currentLevel === 1) {
+            const timer = setInterval(() => {
+                setTimeElapsed(prev => {
+                    const newTime = prev + 1;
+                    if (newTime >= 300 && !showIntelBulb) {
+                        setShowIntelBulb(true);
+                    }
+                    return newTime;
+                });
+            }, 1000);
+
+            return () => clearInterval(timer);
+        } else {
+            setShowIntelBulb(false);
+            setTimeElapsed(0);
+        }
+    }, [currentLevel, showIntelBulb]);
 
     const handleClockSolve = () => {
         const messages = [
@@ -239,6 +262,25 @@ const Game = () => {
         navigate("/");
     };
 
+    const handleSkip = () => {
+        if (currentLevel < DEMO_LEVELS.length) {
+            const nextLevel = currentLevel + 1;
+            setCurrentLevel(nextLevel);
+            sessionStorage.setItem("lockstep_level", nextLevel.toString());
+        } else {
+            alert("PROTOCOL BREACHED: ALL LAYERS DECRYPTED.");
+        }
+    };
+
+    const handlePreview = () => {
+        // Go to previous level
+        if (currentLevel > 1) {
+            const prevLevel = currentLevel - 1;
+            setCurrentLevel(prevLevel);
+            sessionStorage.setItem("lockstep_level", prevLevel.toString());
+        }
+    };
+
     const currentPuzzle = DEMO_LEVELS[currentLevel - 1];
 
     return (
@@ -261,6 +303,7 @@ const Game = () => {
             <header className="h-16 flex items-center justify-between px-8 border-b-2 border-primary/20 bg-black/40 backdrop-blur-md z-20">
                 <div className="flex items-center gap-4">
                     <span className="text-primary text-xs md:text-sm tracking-widest animate-pulse">DOOMSDAY//PROTOCOL</span>
+                    <span className="text-[9px] text-muted-foreground/60 tracking-wide hidden md:inline">// V. VON DOOM</span>
                 </div>
 
                 <div className="flex items-center gap-8">
@@ -284,9 +327,25 @@ const Game = () => {
                 {/* Left Column: Security Layers */}
                 <section className="w-full md:w-1/4 h-full flex flex-col">
                     <div className="border-2 border-primary/10 bg-black/20 p-4 rounded backdrop-blur-sm flex-1 flex flex-col min-h-0">
-                        <div className="text-xs text-primary/60 mb-4 border-b border-primary/10 pb-2 flex justify-between flex-shrink-0">
+                        <div className="text-xs text-primary/60 mb-4 border-b border-primary/10 pb-2 flex justify-between items-center flex-shrink-0">
                             <span>SECURITY LAYERS</span>
-                            <span>{currentLevel}/{DEMO_LEVELS.length}</span>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={handlePreview}
+                                    className="p-1 rounded bg-blue-500/20 border border-blue-500/50 text-blue-400 hover:bg-blue-500/30 transition-all"
+                                    title="Previous Level"
+                                >
+                                    <SkipBack className="w-3 h-3" />
+                                </button>
+                                <button
+                                    onClick={handleSkip}
+                                    className="p-1 rounded bg-yellow-500/20 border border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/30 transition-all"
+                                    title="Skip Level"
+                                >
+                                    <SkipForward className="w-3 h-3" />
+                                </button>
+                                <span>{currentLevel}/{DEMO_LEVELS.length}</span>
+                            </div>
                         </div>
 
                         <div className="flex flex-col gap-2 flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent min-h-0">
@@ -348,12 +407,9 @@ const Game = () => {
                                         initial={{ opacity: 0, scale: 0.98 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 1.02 }}
-                                        className="flex-1 flex flex-col"
+                                        className="flex-1 flex flex-col min-h-0"
                                     >
-                                        <div className="mb-4 text-xs md:text-sm text-foreground leading-relaxed">
-                                            <p className="whitespace-pre-wrap">{currentPuzzle?.content}</p>
-                                        </div>
-                                        <URLPuzzle onSolve={handleAnswer} />
+                                        <URLPuzzle onSolve={handleAnswer} level={2} />
                                     </motion.div>
                                 ) : currentPuzzle?.type === "crossword" ? (
                                     <motion.div
@@ -365,6 +421,7 @@ const Game = () => {
                                     >
                                         <CrosswordPuzzle
                                             onSolve={handleAnswer}
+                                            level={currentLevel}
                                         />
                                     </motion.div>
                                 ) : currentPuzzle?.type === "morse" ? (
@@ -377,6 +434,7 @@ const Game = () => {
                                     >
                                         <MorseCodePuzzle
                                             onSolve={handleAnswer}
+                                            level={currentLevel}
                                         />
                                     </motion.div>
                                 ) : currentPuzzle?.type === "filesystem" ? (
@@ -387,22 +445,17 @@ const Game = () => {
                                         exit={{ opacity: 0, scale: 1.02 }}
                                         className="flex-1 flex flex-col items-center justify-center overflow-y-auto"
                                     >
-                                        {currentLevel === 5 ? (
-                                            <DesktopPuzzle
-                                                puzzle={{
-                                                    question: currentPuzzle.content,
-                                                    answer: currentPuzzle.answer
-                                                }}
-                                                onCorrectAnswer={() => handleAnswer(currentPuzzle.answer)}
-                                                onWrongAnswer={() => {
-                                                    // Wrong answer feedback
-                                                }}
-                                            />
-                                        ) : (
-                                            <FileSystemPuzzle
-                                                onSolve={handleAnswer}
-                                            />
-                                        )}
+                                        <DesktopPuzzle
+                                            level={currentLevel}
+                                            puzzle={{
+                                                question: currentPuzzle.content,
+                                                answer: currentPuzzle.answer
+                                            }}
+                                            onCorrectAnswer={() => handleAnswer(currentPuzzle.answer)}
+                                            onWrongAnswer={() => {
+                                                // Wrong answer feedback
+                                            }}
+                                        />
                                     </motion.div>
                                 ) : currentPuzzle?.type === "avengers" ? (
                                     <motion.div
@@ -426,7 +479,114 @@ const Game = () => {
                                     >
                                         <CodeCrackerPuzzle
                                             onSolve={handleAnswer}
+                                            level={currentLevel}
                                         />
+                                    </motion.div>
+                                ) : currentPuzzle?.type === "still" ? (
+                                    <motion.div
+                                        key={currentLevel}
+                                        initial={{ opacity: 0, scale: 0.98 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 1.02 }}
+                                        className="flex-1 flex flex-col min-h-0"
+                                    >
+                                        <StillPuzzle
+                                            onSolve={handleAnswer}
+                                            level={currentLevel}
+                                        />
+                                    </motion.div>
+                                ) : currentPuzzle?.type === "phonekeypad" ? (
+                                    <motion.div
+                                        key={currentLevel}
+                                        initial={{ opacity: 0, scale: 0.98 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 1.02 }}
+                                        className="flex-1 flex flex-col min-h-0"
+                                    >
+                                        <PhoneKeypadPuzzle
+                                            onSolve={handleAnswer}
+                                            level={currentLevel}
+                                        />
+                                    </motion.div>
+                                ) : currentPuzzle?.type === "guidinghelper" ? (
+                                    <motion.div
+                                        key={currentLevel}
+                                        initial={{ opacity: 0, scale: 0.98 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 1.02 }}
+                                        className="flex-1 flex flex-col min-h-0"
+                                    >
+                                        <GuidingHelperPuzzle
+                                            onSolve={handleAnswer}
+                                        />
+                                    </motion.div>
+                                ) : currentPuzzle?.type === "minesweeper" ? (
+                                    <motion.div
+                                        key={currentLevel}
+                                        initial={{ opacity: 0, scale: 0.98 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 1.02 }}
+                                        className="flex-1 flex flex-col min-h-0"
+                                    >
+                                        <MineSweeperPuzzle
+                                            onSolve={handleAnswer}
+                                        />
+                                    </motion.div>
+                                ) : currentPuzzle?.type === "floorplan" ? (
+                                    <motion.div
+                                        key={currentLevel}
+                                        initial={{ opacity: 0, scale: 0.98 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 1.02 }}
+                                        className="flex-1 flex flex-col min-h-0"
+                                    >
+                                        <FloorPlanPuzzle
+                                            onSolve={handleAnswer}
+                                            level={currentLevel}
+                                        />
+                                    </motion.div>
+                                ) : currentPuzzle?.type === "threedoors" ? (
+                                    <motion.div
+                                        key={currentLevel}
+                                        initial={{ opacity: 0, scale: 0.98 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 1.02 }}
+                                        className="flex-1 flex flex-col min-h-0"
+                                    >
+                                        <ThreeDoorsPuzzle
+                                            onSolve={handleAnswer}
+                                            level={currentLevel}
+                                        />
+                                    </motion.div>
+                                ) : currentPuzzle?.type === "video" ? (
+                                    <motion.div
+                                        key={currentLevel}
+                                        initial={{ opacity: 0, scale: 0.98 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 1.02 }}
+                                        className="flex-1 flex flex-col items-center justify-center min-h-0"
+                                    >
+                                        <div className="w-full max-w-2xl">
+                                            <video 
+                                                controls 
+                                                muted
+                                                controlsList="nodownload nofullscreen noplaybackrate"
+                                                disablePictureInPicture
+                                                className="w-full rounded-lg border-2 border-primary/30 shadow-lg [&::-webkit-media-controls-volume-slider]:hidden [&::-webkit-media-controls-mute-button]:hidden [&::-webkit-media-controls-volume-control-container]:hidden"
+                                                src="/z070h4fejhrmr0cw3ppt8649t0_result_.mp4"
+                                                style={{ pointerEvents: 'auto' }}
+                                            >
+                                                Your browser does not support the video tag.
+                                            </video>
+                                            <p className="text-center text-xs text-muted-foreground mt-4">{currentPuzzle?.content}</p>
+                                        </div>
+                                        <div className="mt-4 w-full max-w-md">
+                                            <AnswerInput
+                                                onSubmit={(answer) => handleAnswer(answer)}
+                                                correctAnswer={currentPuzzle?.answer || ""}
+                                                errorMessage="You are listening too Hard"
+                                            />
+                                        </div>
                                     </motion.div>
                                 ) : (
                                     <motion.div
@@ -442,7 +602,7 @@ const Game = () => {
                             </AnimatePresence>
 
                             {/* Integrated Answer Area - Only for text puzzles */}
-                            {currentPuzzle?.type !== "clock" && currentPuzzle?.type !== "url" && currentPuzzle?.type !== "crossword" && currentPuzzle?.type !== "morse" && currentPuzzle?.type !== "filesystem" && currentPuzzle?.type !== "avengers" && currentPuzzle?.type !== "codecracker" && (
+                            {currentPuzzle?.type !== "clock" && currentPuzzle?.type !== "url" && currentPuzzle?.type !== "crossword" && currentPuzzle?.type !== "morse" && currentPuzzle?.type !== "filesystem" && currentPuzzle?.type !== "avengers" && currentPuzzle?.type !== "codecracker" && currentPuzzle?.type !== "still" && currentPuzzle?.type !== "phonekeypad" && currentPuzzle?.type !== "guidinghelper" && currentPuzzle?.type !== "threedoors" && currentPuzzle?.type !== "floorplan" && currentPuzzle?.type !== "video" && (
                                 <div className="mt-auto space-y-4">
                                     <div className="flex items-center gap-2 text-primary/60 text-[8px]">
                                         <span>{">"} ENTER DECRYPTION KEY...</span>
@@ -502,7 +662,35 @@ const Game = () => {
                                 <Info className="w-3 h-3" />
                                 <span>INTEL</span>
                             </div>
-                            {currentPuzzle?.type === "morse" ? (
+                            {currentLevel === 1 ? (
+                                <div className="p-4 bg-black/40 border border-primary/20 rounded">
+                                    {!intelOpen ? (
+                                        <button
+                                            onClick={() => setIntelOpen(true)}
+                                            className="w-full text-[8px] uppercase tracking-wider font-semibold py-2 px-3 rounded transition-all duration-300 bg-primary/20 text-primary border border-primary/50 hover:bg-primary/30"
+                                        >
+                                            INTEL
+                                        </button>
+                                    ) : (
+                                        <div className="space-y-3 text-center">
+                                            <p className="text-[8px] font-medium tracking-wide text-gray-200 leading-relaxed">
+                                                DOOM DESIGNED THIS LAYER TO ELIMINATE HUMAN IMPRECISION.
+                                            </p>
+                                            <div className="pt-2 border-t border-yellow-500/30">
+                                                <p className="text-[8px] font-medium tracking-wide text-yellow-400 leading-relaxed">
+                                                    ONLY ONE SEQUENCE IS VALID. ALL OTHERS ARE ERRORS.
+                                                </p>
+                                            </div>
+                                            <button
+                                                onClick={() => setIntelOpen(false)}
+                                                className="w-full text-[7px] uppercase tracking-wider font-semibold py-1.5 px-3 rounded transition-all duration-300 bg-gray-800/50 text-gray-400 border border-gray-700/50 hover:bg-gray-700/50 mt-3"
+                                            >
+                                                CLOSE
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : currentPuzzle?.type === "morse" ? (
                                 <div className="p-4 bg-black/40 border border-primary/20 rounded">
                                     <img 
                                         src="/morse-code.jpeg" 
@@ -524,12 +712,28 @@ const Game = () => {
                                     <p className="text-[7px] text-muted-foreground">• "Lost their past" = amnesia</p>
                                     <p className="text-[7px] text-muted-foreground">• "Sky that isn't home" = space</p>
                                 </div>
+                            ) : currentLevel === 2 ? (
+                                <div className="p-4 bg-black/40 border border-primary/20 rounded">
+                                    <div className="space-y-2 text-center">
+                                        <p className="text-[8px] font-medium tracking-wide text-gray-200 leading-relaxed">
+                                            HUMANS TRUST INSTINCT.
+                                        </p>
+                                        <p className="text-[8px] font-medium tracking-wide text-gray-200 leading-relaxed">
+                                            DOOM TRUSTS COMPARISON.
+                                        </p>
+                                        <p className="text-[8px] font-medium tracking-wide text-yellow-400 leading-relaxed">
+                                            WHAT SURVIVES COMPARISON IS WORTH PRESERVING.
+                                        </p>
+                                    </div>
+                                </div>
                             ) : (
                                 <div className="p-4 text-[8px] text-muted-foreground/40 leading-relaxed italic">
                                     {currentPuzzle?.hint ? currentPuzzle.hint : "No intel available for this layer. You're on your own, agent."}
                                 </div>
                             )}
                         </div>
+
+
 
                     </div>
 

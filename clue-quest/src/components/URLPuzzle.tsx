@@ -2,12 +2,14 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Terminal } from "lucide-react";
 
 interface URLPuzzleProps {
     onSolve?: (answer: string) => void;
+    level?: number;
 }
 
-export const URLPuzzle = ({ onSolve }: URLPuzzleProps) => {
+export const URLPuzzle = ({ onSolve, level = 2 }: URLPuzzleProps) => {
     const [answer, setAnswer] = useState("");
     const [feedback, setFeedback] = useState("");
     const [solved, setSolved] = useState(false);
@@ -48,15 +50,15 @@ export const URLPuzzle = ({ onSolve }: URLPuzzleProps) => {
             const insertPosition = Math.floor(lines[middleIndex].length / 2);
             lines[middleIndex] = 
                 lines[middleIndex].substring(0, insertPosition) + 
-                "<esc-crack>" + 
-                lines[middleIndex].substring(insertPosition + 11);
+                "<escape→crack>" + 
+                lines[middleIndex].substring(insertPosition + 15);
         }
 
         return lines;
     };
 
     const handleUrlClick = (url: string) => {
-        const isCorrectUrl = url === "xq8/mz/il9_k3/esc-jw/n7.../s2p";
+        const isCorrectUrl = url === "xq8/mz/il9_k3/escape-jw/n7.../s2p";
         setSelectedUrl(url);
         setImageData(generateRandomCodes(isCorrectUrl));
     };
@@ -66,41 +68,63 @@ export const URLPuzzle = ({ onSolve }: URLPuzzleProps) => {
         setImageData([]);
     };
 
-    // URLs to display (one contains 'esc')
+    // URLs to display (one contains 'escape')
     const urls = [
         "q/i/l/_k/esq-j/n.../s",
-        "xq8/mz/il9_k3/esc-jw/n7.../s2p",
+        "xq8/mz/il9_k3/escape-jw/n7.../s2p",
         "f5/r/tq_x/esk-m/k.../bn",
         "j3/w/ki1_m/est-v/t.../fg",
     ];
 
-    // Code blocks (one contains 'esc')
+    // Code blocks (one contains 'escape')
     const codeBlocks = [
         "kilje12569mq",
         "nce354we56",
         "xyz789abc",
-        "esc123def",
+        "escape123def",
         "ghi456jkl",
     ];
 
     const handleSubmit = () => {
         if (answer.toLowerCase() === "crack") {
             setSolved(true);
-            setFeedback("✓ ESCAPE ROUTE UNLOCKED!");
+            setFeedback("ESCAPE PROTOCOL VALIDATED.\nLAYER 02 BREACHED.");
             onSolve?.("CRACK");
         } else {
-            setFeedback("✗ ACCESS DENIED. Review the clues.");
+            setFeedback("INVALID COMPARISON.\nREASSESS ALL FRAGMENTS.");
         }
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="w-full max-w-3xl mx-auto space-y-6"
-        >
-            {/* Noisy Background with URLs */}
-            <div className="relative bg-black/80 border-2 border-primary/30 rounded-lg p-6 overflow-hidden">
+        <div className="w-full flex-1 min-h-0 glass-card-glow rounded-sm overflow-hidden transition-all duration-300 flex flex-col">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-secondary/60 to-secondary/40 px-5 py-3.5 border-b-2 border-primary/30 flex items-center gap-3 flex-shrink-0 shadow-lg relative">
+                <Terminal className="h-5 w-5 text-primary animate-pulse" />
+                <span className="text-sm uppercase tracking-[0.25em] text-primary font-bold">
+                    Security Layer {level.toString().padStart(2, '0')}
+                </span>
+            </div>
+
+            {/* Content */}
+            <div className="px-3 py-2 space-y-1 flex flex-col flex-1 min-h-0 overflow-y-auto w-full">
+                {/* Question Header */}
+                <div className="space-y-1 flex flex-col">
+                    <div className="text-xs uppercase tracking-[0.15em] text-muted-foreground flex items-center gap-2 py-1 border-l-2 border-primary/50 pl-3 bg-primary/5 flex-shrink-0">
+                        <span className="text-primary font-bold text-sm">&gt;</span> 
+                        <span className="text-primary/90 font-semibold">URL FRAGMENT ANALYSIS</span>
+                    </div>
+                    
+                    <div className="glass-card p-3 md:p-4 rounded-sm flex flex-col gap-3 border border-primary/10">
+                        {/* Text Section */}
+                        <div className="text-foreground flex-shrink-0 text-center space-y-2">
+                            <p className="text-xs md:text-sm font-medium tracking-wide">COMPARISON IS PAINFUL. BUT NECESSARY. PATTERNS REVEAL WHAT INTUITION HIDES.</p>
+                            <p className="text-xs md:text-sm font-medium tracking-wide">IDENTIFY THE FRAGMENT THAT OBEYS THE ESCAPE PROTOCOL.</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Noisy Background with URLs */}
+                <div className="relative bg-black/80 border-2 border-primary/30 rounded-lg p-6 overflow-hidden mt-3">
                 {/* Random text background */}
                 <div className="absolute inset-0 overflow-hidden opacity-20 font-mono text-[8px] leading-tight text-green-500 pointer-events-none">
                     {randomNoise}
@@ -135,7 +159,7 @@ export const URLPuzzle = ({ onSolve }: URLPuzzleProps) => {
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: index * 0.2 }}
                                 className={`font-mono text-xs p-2 rounded border cursor-pointer hover:scale-105 transition-transform ${
-                                    url.includes("esc-")
+                                    url.includes("escape-")
                                         ? "border-green-500/50 bg-green-500/10 text-green-400 hover:bg-green-500/20"
                                         : "border-primary/30 bg-primary/5 text-primary/60 hover:bg-primary/10"
                                 }`}
@@ -159,7 +183,7 @@ export const URLPuzzle = ({ onSolve }: URLPuzzleProps) => {
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: 0.8 + index * 0.1 }}
                                     className={`font-mono text-xs p-3 rounded border text-center ${
-                                        code.includes("esc")
+                                        code.includes("escape")
                                             ? "border-cyan-500 bg-cyan-500/10 text-cyan-300 font-bold"
                                             : "border-muted/30 bg-muted/10 text-muted-foreground"
                                     }`}
@@ -170,11 +194,6 @@ export const URLPuzzle = ({ onSolve }: URLPuzzleProps) => {
                         </div>
                     </div>
 
-                    <div className="text-center pt-4">
-                        <p className="text-primary/70 font-['Press_Start_2P'] text-[9px]">
-                            DECRYPTION KEY: esc → ?
-                        </p>
-                    </div>
                 </div>
             </div>
 
@@ -187,7 +206,7 @@ export const URLPuzzle = ({ onSolve }: URLPuzzleProps) => {
                         onChange={(e) => setAnswer(e.target.value)}
                         placeholder="Enter the key..."
                         disabled={solved}
-                        className="flex-1 font-['Press_Start_2P'] text-xs uppercase"
+                        className="flex-1 font-['Press_Start_2P'] text-xs uppercase border-2 border-primary/50 focus:border-primary bg-black/40"
                         onKeyPress={(e) => e.key === "Enter" && handleSubmit()}
                     />
                     <Button
@@ -277,6 +296,7 @@ export const URLPuzzle = ({ onSolve }: URLPuzzleProps) => {
                     </motion.div>
                 )}
             </AnimatePresence>
-        </motion.div>
+            </div>
+        </div>
     );
 };
