@@ -3,8 +3,8 @@ import { Terminal, File, Trash, X } from 'lucide-react';
 import { motion } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import BookReveal from './BookReveal';
-import { AnswerInput } from './AnswerInput';
+import BookReveal from '@/components/BookReveal';
+import { AnswerInput } from '@/components/AnswerInput';
 
 // Constants
 const DECOY_IMAGES = [

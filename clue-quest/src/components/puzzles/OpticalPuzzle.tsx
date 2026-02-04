@@ -1,56 +1,60 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Terminal, X, ArrowLeft } from "lucide-react";
+import { AnswerInput } from "@/components/AnswerInput";
 
-interface MCQPuzzleProps {
+interface OpticalPuzzleProps {
     onSolve?: (answer: string) => void;
     level?: number;
 }
 
-export const MCQPuzzle = ({ onSolve, level = 7 }: MCQPuzzleProps) => {
-    // State for the frame interaction
+const ANSWER = "ILLUSION";
+const HINT = "Light explains shadows.\nShadows explain lies.";
+
+const ROOM_IMAGE = "/still-room.jpg";
+
+export const OpticalPuzzle = ({ onSolve, level = 6 }: OpticalPuzzleProps) => {
     const [frameOpened, setFrameOpened] = useState(false);
     const [frameFlipped, setFrameFlipped] = useState(false);
-    const [selectedOption, setSelectedOption] = useState<number | null>(null);
-    
-    // Game state
+    const [showHint, setShowHint] = useState(false);
     const [feedback, setFeedback] = useState("");
     const [solved, setSolved] = useState(false);
 
-    const ANSWER = "BRAIN"; // Or whatever code is expected by the next level
-    const MC_ANSWER_ID = 3; 
-
-    const handleOptionSelect = (optionId: number) => {
-        if (!solved) {
-            setSelectedOption(optionId);
+    const handleFrameClick = () => {
+        if (!frameOpened) {
             setFrameOpened(true);
+        }
+    };
+
+    const handleOpenedFrameClick = () => {
+        if (!frameFlipped) {
             setFrameFlipped(true);
-            
-            // Logic for checking answer
-             if (optionId === MC_ANSWER_ID) { 
-                 setSolved(true);
-                 setFeedback("✓ CORRECT. VISION IS IMPERFECT.");
-                 setTimeout(() => {
-                     onSolve?.(ANSWER);
-                 }, 1500);
-             } else {
-                 setFeedback("✗ INCORRECT INTERPRETATION.");
-             }
         }
     };
 
     const handleCloseModal = () => {
         setFrameOpened(false);
         setFrameFlipped(false);
-        setSelectedOption(null);
-        setFeedback("");
     };
 
     const handleGoBack = () => {
         setFrameOpened(false);
-        setFrameFlipped(false); 
-        // Resetting selected option might be desired or not
-        setSelectedOption(null);
+    };
+
+    const handleSolve = async (answer: string): Promise<boolean> => {
+        const trimmedInput = answer.trim().toUpperCase();
+        
+        if (trimmedInput === ANSWER) {
+            setSolved(true);
+            setFeedback("✓ VISUAL DISTORTION CORRECTED.");
+            setTimeout(() => {
+                onSolve?.(ANSWER);
+            }, 1000);
+            return true;
+        } else {
+            setFeedback("✗ ILLUSION PERSISTS. LOOK CLOSER.");
+            return false;
+        }
     };
 
     return (
@@ -73,7 +77,7 @@ export const MCQPuzzle = ({ onSolve, level = 7 }: MCQPuzzleProps) => {
                 <div className="flex items-center gap-2">
                     <span className="text-primary text-lg">&gt;</span>
                     <span className="text-xs uppercase tracking-[0.2em] text-primary/90 font-semibold">
-                        VISUAL ANALYSIS TEST
+                        PERCEPTUAL DISTORTION TEST
                     </span>
                 </div>
             </div>
@@ -90,70 +94,31 @@ export const MCQPuzzle = ({ onSolve, level = 7 }: MCQPuzzleProps) => {
                 <div className="relative rounded-lg overflow-hidden border-2 border-primary/20 shadow-2xl" style={{ maxHeight: '100%', aspectRatio: '16/10' }}>
                     {/* Room Image */}
                     <img 
-                        src="/still-room.jpg"
+                        src={ROOM_IMAGE}
                         alt="A mysterious room"
                         className="w-full h-full object-cover"
                     />
 
-                    {/* MCQ Options Overlay */}
-                    <div className="absolute top-[5%] right-[25%] space-y-2 max-w-[35%]">
-                        <button
-                            onClick={() => handleOptionSelect(1)}
-                            disabled={solved}
-                            className={`w-full bg-black/70 backdrop-blur-sm border-2 rounded p-2 transition-all cursor-pointer hover:bg-black/80 hover:border-primary/50 ${
-                                selectedOption === 1 ? "border-primary bg-primary/20" : "border-primary/30"
-                            } ${solved ? "opacity-50 cursor-not-allowed" : ""}`}
-                        >
-                            <p className={`text-[8px] md:text-[10px] font-['Press_Start_2P'] leading-relaxed ${
-                                selectedOption === 1 ? "text-primary" : "text-yellow-400"
-                            }`}>
-                                1. The image is moving.
-                            </p>
-                        </button>
-                        <button
-                            onClick={() => handleOptionSelect(2)}
-                            disabled={solved} // Assuming option 2 was "The light is changing" in the old code, or I should rename them
-                            className={`w-full bg-black/70 backdrop-blur-sm border-2 rounded p-2 transition-all cursor-pointer hover:bg-black/80 hover:border-primary/50 ${
-                                selectedOption === 2 ? "border-primary bg-primary/20" : "border-primary/30"
-                            } ${solved ? "opacity-50 cursor-not-allowed" : ""}`}
-                        >
-                            <p className={`text-[8px] md:text-[10px] font-['Press_Start_2P'] leading-relaxed ${
-                                selectedOption === 2 ? "text-primary" : "text-yellow-400"
-                            }`}>
-                                2. The light is changing.
-                            </p>
-                        </button>
-                        <button
-                            onClick={() => handleOptionSelect(3)}
-                            disabled={solved}
-                            className={`w-full bg-black/70 backdrop-blur-sm border-2 rounded p-2 transition-all cursor-pointer hover:bg-black/80 hover:border-primary/50 ${
-                                selectedOption === 3 ? "border-primary bg-primary/20" : "border-primary/30"
-                            } ${solved ? "opacity-50 cursor-not-allowed" : ""}`}
-                        >
-                            <p className={`text-[8px] md:text-[10px] font-['Press_Start_2P'] leading-relaxed ${
-                                selectedOption === 3 ? "text-primary" : "text-yellow-400"
-                            }`}>
-                                3. The human eye cannot see everything correctly.
-                            </p>
-                        </button>
-                        <button
-                            onClick={() => handleOptionSelect(4)}
-                            disabled={solved}
-                            className={`w-full bg-black/70 backdrop-blur-sm border-2 rounded p-2 transition-all cursor-pointer hover:bg-black/80 hover:border-primary/50 ${
-                                selectedOption === 4 ? "border-primary bg-primary/20" : "border-primary/30"
-                            } ${solved ? "opacity-50 cursor-not-allowed" : ""}`}
-                        >
-                            <p className={`text-[8px] md:text-[10px] font-['Press_Start_2P'] leading-relaxed ${
-                                selectedOption === 4 ? "text-primary" : "text-yellow-400"
-                            }`}>
-                                4. The object is damaged.
-                            </p>
-                        </button>
-                    </div>
+                    
+                    {/* Invisible clickable frame area - positioned over the painting */}
+                    <motion.div
+                        onClick={handleFrameClick}
+                        whileHover={{ scale: 1.02 }}
+                        className="absolute cursor-pointer"
+                        style={{
+                            left: '4%',
+                            top: '12%',
+                            width: '24%',
+                            height: '32%',
+                        }}
+                    >
+                        {/* Transparent clickable area */}
+                        <div className="w-full h-full bg-transparent" />
+                    </motion.div>
                 </div>
             </div>
 
-            {/* Modal - Opens when option is clicked */}
+            {/* Modal - Opens when frame is clicked */}
             <AnimatePresence>
                 {frameOpened && (
                     <motion.div
@@ -193,8 +158,10 @@ export const MCQPuzzle = ({ onSolve, level = 7 }: MCQPuzzleProps) => {
                             >
                                 {/* Front - Painting Image */}
                                 <motion.div
+                                    onClick={handleOpenedFrameClick}
                                     className="cursor-pointer"
                                     style={{ backfaceVisibility: 'hidden' }}
+                                    whileHover={{ scale: 1.02 }}
                                 >
                                     {/* Wooden Frame Border */}
                                     <div 
@@ -215,7 +182,7 @@ export const MCQPuzzle = ({ onSolve, level = 7 }: MCQPuzzleProps) => {
                                             {/* Painting Canvas */}
                                             <div className="w-64 h-44 md:w-80 md:h-56 overflow-hidden rounded-sm">
                                                 <img 
-                                                    src="/still-room.jpg"
+                                                    src={ROOM_IMAGE}
                                                     alt="Landscape painting"
                                                     className="w-full h-full object-cover"
                                                     style={{
@@ -230,7 +197,7 @@ export const MCQPuzzle = ({ onSolve, level = 7 }: MCQPuzzleProps) => {
                                     
                                 </motion.div>
 
-                                {/* Back - Feedback Message */}
+                                {/* Back - Message */}
                                 <motion.div
                                     className="absolute inset-0"
                                     style={{ 
@@ -267,15 +234,15 @@ export const MCQPuzzle = ({ onSolve, level = 7 }: MCQPuzzleProps) => {
                                                 boxShadow: 'inset 0 4px 16px rgba(0,0,0,0.6)',
                                             }}
                                         >
-                                            {/* Message */}
+                                            {/* Handwritten style message */}
                                             <motion.div
                                                 initial={{ opacity: 0 }}
                                                 animate={{ opacity: 1 }}
                                                 transition={{ delay: 0.5 }}
                                                 className="text-center px-4"
                                             >
-                                                <p className={`text-[10px] tracking-[0.2em] mb-3 ${solved ? "text-green-400" : "text-red-400"}`}>
-                                                    {solved ? "ACCESS GRANTED" : "ACCESS DENIED"}
+                                                <p className="text-amber-100/40 text-[10px] tracking-[0.2em] mb-3">
+                                                    THE MESSAGE READS
                                                 </p>
                                                 <div 
                                                     className="text-sm md:text-base font-serif text-amber-100/70 leading-relaxed"
@@ -284,7 +251,7 @@ export const MCQPuzzle = ({ onSolve, level = 7 }: MCQPuzzleProps) => {
                                                         textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
                                                     }}
                                                 >
-                                                    {feedback}
+                                                    {HINT}
                                                 </div>
                                             </motion.div>
 
@@ -307,6 +274,33 @@ export const MCQPuzzle = ({ onSolve, level = 7 }: MCQPuzzleProps) => {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Answer Input - Only shows after frame is flipped */}
+            <AnimatePresence>
+                {frameFlipped && !solved && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="mt-2 flex-shrink-0 w-full max-w-md mx-auto"
+                    >
+                        <AnswerInput
+                            onSubmit={handleSolve}
+                            successMessage={feedback}
+                            errorMessage={feedback}
+                            withExecuteButton
+                            feedbackPlacement="top"
+                            disabled={solved}
+                            placeholder="TYPE THE ANSWER..."
+                            buttonText="SUBMIT"
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+
         </motion.div>
     );
 };
+
+export default OpticalPuzzle;

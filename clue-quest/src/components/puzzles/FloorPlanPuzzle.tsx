@@ -21,25 +21,41 @@ export const FloorPlanPuzzle = ({ onSolve, level = 10 }: FloorPlanPuzzleProps) =
     const [feedback, setFeedback] = useState("");
     const [solved, setSolved] = useState(false);
 
-    // Hexagon grid - honeycomb pattern (7 hexagons)
-    // Layout:
-    //     0
-    //   1   2
-    // 3   4   5
-    //     6
+    // Hexagon grid - flower pattern (1 center, 6 surrounding)
+    // 0: Center
+    // 1: Top
+    // 2: Top Right
+    // 3: Bottom Right
+    // 4: Bottom
+    // 5: Bottom Left
+    // 6: Top Left
+    const r = 45;
+    const dist = r * Math.sqrt(3); // ~78
+    const cx = 175;
+    const cy = 155;
+    
+    // Helper to calc slight offsets if needed, but standard hex grid math:
+    // 30 degrees = PI/6
+    const dx = dist * Math.cos(Math.PI / 6); // dist * 0.866
+    const dy = dist * Math.sin(Math.PI / 6); // dist * 0.5
+
     const hexagons: Hexagon[] = [
-        { id: 0, row: 0, col: 1, x: 150, y: 0 },
-        { id: 1, row: 1, col: 0, x: 75, y: 85 },
-        { id: 2, row: 1, col: 2, x: 225, y: 85 },
-        { id: 3, row: 2, col: 0, x: 0, y: 170 },
-        { id: 4, row: 2, col: 1, x: 150, y: 170 },
-        { id: 5, row: 2, col: 2, x: 300, y: 170 },
-        { id: 6, row: 3, col: 1, x: 150, y: 255 },
+        { id: 0, row: 1, col: 1, x: cx, y: cy },                     // Center
+        { id: 1, row: 0, col: 1, x: cx, y: cy - dist },              // Top
+        { id: 2, row: 0, col: 2, x: cx + dx, y: cy - dy },           // Top Right
+        { id: 3, row: 2, col: 2, x: cx + dx, y: cy + dy },           // Bottom Right
+        { id: 4, row: 2, col: 1, x: cx, y: cy + dist },              // Bottom
+        { id: 5, row: 2, col: 0, x: cx - dx, y: cy + dy },           // Bottom Left
+        { id: 6, row: 0, col: 0, x: cx - dx, y: cy - dy },           // Top Left
     ];
 
-    // Winning combination: hexagons that form a triangle and provide maximum light
-    // Triangle formed by: 1, 2, 4 (top-left, top-right, center-bottom)
-    const winningCombination = [1, 2, 4];
+    // Winning combinations: alternating outer hexagons (equilateral triangles)
+    // Option A: 1 (Top), 3 (Bot Right), 5 (Bot Left)
+    // Option B: 2 (Top Right), 4 (Bottom), 6 (Top Left)
+    const winningCombinations = [
+        [1, 3, 5],
+        [2, 4, 6]
+    ];
 
     const handleHexagonClick = (hexId: number) => {
         if (solved) return;
@@ -56,9 +72,13 @@ export const FloorPlanPuzzle = ({ onSolve, level = 10 }: FloorPlanPuzzleProps) =
             
             // Check if we have 3 lights
             if (newLitHexagons.size === 3) {
-                // Check if it's the winning combination
-                const litArray = Array.from(newLitHexagons).sort();
-                const isWinning = litArray.every((id, idx) => id === winningCombination[idx]);
+                // Check if it's a winning combination
+                const litArray = Array.from(newLitHexagons).sort((a, b) => a - b);
+                
+                const isWinning = winningCombinations.some(combo => {
+                    const sortedCombo = [...combo].sort((a, b) => a - b);
+                    return JSON.stringify(litArray) === JSON.stringify(sortedCombo);
+                });
                 
                 if (isWinning) {
                     setSolved(true);
@@ -138,10 +158,10 @@ export const FloorPlanPuzzle = ({ onSolve, level = 10 }: FloorPlanPuzzleProps) =
                                             return (
                                                 <line
                                                     key={`${id1}-${id2}`}
-                                                    x1={hex1.x + 40}
-                                                    y1={hex1.y + 40}
-                                                    x2={hex2.x + 40}
-                                                    y2={hex2.y + 40}
+                                                    x1={hex1.x}
+                                                    y1={hex1.y}
+                                                    x2={hex2.x}
+                                                    y2={hex2.y}
                                                     stroke={solved ? "#22c55e" : "#eab308"}
                                                     strokeWidth="3"
                                                     strokeDasharray={solved ? "0" : "5,5"}
@@ -159,7 +179,7 @@ export const FloorPlanPuzzle = ({ onSolve, level = 10 }: FloorPlanPuzzleProps) =
                             return (
                                 <g key={hex.id}>
                                     <motion.path
-                                        d={getHexagonPath(hex.x + 40, hex.y + 40)}
+                                        d={getHexagonPath(hex.x, hex.y)}
                                         fill={isLit ? (solved ? "#22c55e" : "#eab308") : "#1f2937"}
                                         stroke={isLit ? (solved ? "#22c55e" : "#facc15") : "#4b5563"}
                                         strokeWidth="2"
@@ -175,8 +195,8 @@ export const FloorPlanPuzzle = ({ onSolve, level = 10 }: FloorPlanPuzzleProps) =
                                     />
                                     {/* Light bulb dot in center */}
                                     <circle
-                                        cx={hex.x + 40}
-                                        cy={hex.y + 40}
+                                        cx={hex.x}
+                                        cy={hex.y}
                                         r={isLit ? 12 : 6}
                                         fill={isLit ? (solved ? "#ffffff" : "#fef08a") : "#6b7280"}
                                         className="pointer-events-none"

@@ -4,20 +4,21 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Logo } from "@/components/Logo";
 import { Timer } from "@/components/Timer";
 import { AnswerInput } from "@/components/AnswerInput";
-import ClockPuzzle from "@/components/ClockPuzzle";
-import { URLPuzzle } from "@/components/URLPuzzle";
-import { CrosswordPuzzle } from "@/components/CrosswordPuzzle";
-import { MorseCodePuzzle } from "@/components/MorseCodePuzzle";
-import DesktopPuzzle from "@/components/DesktopPuzzle";
-import { AvengersPuzzle } from "@/components/AvengersPuzzle";
-import { CodeCrackerPuzzle } from "@/components/CodeCrackerPuzzle";
-import { StillPuzzle } from "@/components/StillPuzzle";
-import { PhoneKeypadPuzzle } from "@/components/PhoneKeypadPuzzle";
-import { ThreeDoorsPuzzle } from "@/components/ThreeDoorsPuzzle";
-import { GuidingHelperPuzzle } from "@/components/GuidingHelperPuzzle";
-import { MineSweeperPuzzle } from "@/components/MineSweeperPuzzle";
-import { FloorPlanPuzzle } from "@/components/FloorPlanPuzzle";
-import { MCQPuzzle } from "@/components/MCQPuzzle";
+import ClockPuzzle from "@/components/puzzles/ClockPuzzle";
+import { URLPuzzle } from "@/components/puzzles/URLPuzzle";
+import { CrosswordPuzzle } from "@/components/puzzles/CrosswordPuzzle";
+import { MorseCodePuzzle } from "@/components/puzzles/MorseCodePuzzle";
+import DesktopPuzzle from "@/components/puzzles/DesktopPuzzle";
+import { AvengersPuzzle } from "@/components/puzzles/AvengersPuzzle";
+import { CodeCrackerPuzzle } from "@/components/puzzles/CodeCrackerPuzzle";
+import { OpticalPuzzle } from "@/components/puzzles/OpticalPuzzle";
+import { PhoneKeypadPuzzle } from "@/components/puzzles/PhoneKeypadPuzzle";
+import { ThreeDoorsPuzzle } from "@/components/puzzles/ThreeDoorsPuzzle";
+import { FloorPlanPuzzle } from "@/components/puzzles/FloorPlanPuzzle";
+import { GuidingHelperPuzzle } from "@/components/puzzles/GuidingHelperPuzzle";
+import { MineSweeperPuzzle } from "@/components/puzzles/MineSweeperPuzzle";
+import { VideoPuzzle } from "@/components/puzzles/VideoPuzzle";
+import { MCQPuzzle } from "@/components/puzzles/MCQPuzzle";
 import { LogOut, Shield, Zap, Info, Cpu, Terminal as TerminalIcon, SkipForward, SkipBack, Lightbulb, X } from "lucide-react";
 
 interface Level {
@@ -85,7 +86,7 @@ const DEMO_LEVELS: Level[] = [
     {
         id: 7,
         title: "Layer 07 - Observation Puzzle",
-        type: "still",
+        type: "mcq",
         content: "Look carefully at the image.\nNothing in this room is broken — but something is wrong.\n\nDo not assume everything is fixed.",
         hint: "Light explains shadows. Shadows explain lies.",
         answer: "ILLUSION"
@@ -493,9 +494,8 @@ const Game = () => {
                                         exit={{ opacity: 0, scale: 1.02 }}
                                         className="flex-1 flex flex-col min-h-0"
                                     >
-                                        <StillPuzzle
+                                        <OpticalPuzzle
                                             onSolve={handleAnswer}
-                                            showMCQ={currentLevel === 7}
                                             level={currentLevel}
                                         />
                                     </motion.div>
@@ -581,39 +581,13 @@ const Game = () => {
                                         initial={{ opacity: 0, scale: 0.98 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 1.02 }}
-                                        className="flex-1 flex flex-col min-h-0 p-4"
+                                        className="flex-1 flex flex-col min-h-0"
                                     >
-                                        {/* Header */}
-                                        <div className="bg-gradient-to-r from-secondary/60 to-secondary/40 px-5 py-3.5 border-b-2 border-primary/30 flex items-center gap-3 flex-shrink-0 shadow-lg rounded-t mb-4">
-                                            <TerminalIcon className="h-5 w-5 text-primary animate-pulse" />
-                                            <span className="text-sm uppercase tracking-[0.25em] text-primary font-bold">
-                                                Security Layer {currentLevel.toString().padStart(2, '0')}
-                                            </span>
-                                        </div>
-                                        
-                                        <div className="flex-1 flex flex-col items-center justify-center">
-                                            <div className="w-full max-w-2xl">
-                                                <video 
-                                                    controls 
-                                                    muted
-                                                    controlsList="nodownload nofullscreen noplaybackrate"
-                                                    disablePictureInPicture
-                                                    className="w-full rounded-lg border-2 border-primary/30 shadow-lg [&::-webkit-media-controls-volume-slider]:hidden [&::-webkit-media-controls-mute-button]:hidden [&::-webkit-media-controls-volume-control-container]:hidden"
-                                                    src="/z070h4fejhrmr0cw3ppt8649t0_result_.mp4"
-                                                    style={{ pointerEvents: 'auto' }}
-                                                >
-                                                    Your browser does not support the video tag.
-                                                </video>
-                                                <p className="text-center text-xs text-muted-foreground mt-4">{currentPuzzle?.content}</p>
-                                            </div>
-                                            <div className="mt-4 w-full max-w-md">
-                                                <AnswerInput
-                                                onSubmit={(answer) => handleAnswer(answer)}
-                                                correctAnswer={currentPuzzle?.answer || ""}
-                                                errorMessage="You are listening too Hard"
-                                            />
-                                            </div>
-                                        </div>
+                                        <VideoPuzzle
+                                            onSolve={handleAnswer}
+                                            level={currentLevel}
+                                            answer={currentPuzzle.answer}
+                                        />
                                     </motion.div>
                                 ) : (
                                     <motion.div
@@ -770,6 +744,94 @@ const Game = () => {
                                             WHAT SURVIVES COMPARISON IS WORTH PRESERVING.
                                         </p>
                                     </div>
+                                </div>
+                            ) : currentPuzzle?.type === "filesystem" ? (
+                                <div className="p-4 bg-black/40 border border-primary/20 rounded">
+                                    {!intelOpen ? (
+                                        <button
+                                            onClick={() => setIntelOpen(true)}
+                                            className="w-full text-[8px] uppercase tracking-wider font-semibold py-2 px-3 rounded transition-all duration-300 bg-primary/20 text-primary border border-primary/50 hover:bg-primary/30"
+                                        >
+                                            INTEL
+                                        </button>
+                                    ) : (
+                                        <div className="space-y-3 text-center">
+                                            <p className="text-[8px] font-medium tracking-wide text-gray-200 leading-relaxed">
+                                                HUMANS ORGANIZE KNOWLEDGE
+                                                <br />
+                                                BEFORE THEY HIDE IT.
+                                            </p>
+                                            <div className="pt-2 border-t border-yellow-500/30">
+                                                <p className="text-[8px] font-medium tracking-wide text-yellow-400 leading-relaxed">
+                                                    LOOK FOR INTENT,
+                                                    <br />
+                                                    NOT CLUTTER.
+                                                </p>
+                                            </div>
+                                            <button
+                                                onClick={() => setIntelOpen(false)}
+                                                className="w-full text-[7px] uppercase tracking-wider font-semibold py-1.5 px-3 rounded transition-all duration-300 bg-gray-800/50 text-gray-400 border border-gray-700/50 hover:bg-gray-700/50 mt-3"
+                                            >
+                                                CLOSE
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : currentPuzzle?.type === "still" ? (
+                                <div className="p-4 bg-black/40 border border-primary/20 rounded">
+                                    {!intelOpen ? (
+                                        <button
+                                            onClick={() => setIntelOpen(true)}
+                                            className="w-full text-[8px] uppercase tracking-wider font-semibold py-2 px-3 rounded transition-all duration-300 bg-primary/20 text-primary border border-primary/50 hover:bg-primary/30"
+                                        >
+                                            INTEL
+                                        </button>
+                                    ) : (
+                                        <div className="space-y-3 text-center">
+                                            <p className="text-[8px] font-medium tracking-wide text-gray-200 leading-relaxed">
+                                                LIGHT EXPLAINS SHADOWS.
+                                            </p>
+                                            <div className="pt-2 border-t border-yellow-500/30">
+                                                <p className="text-[8px] font-medium tracking-wide text-yellow-400 leading-relaxed">
+                                                    SHADOWS EXPLAIN LIES.
+                                                </p>
+                                            </div>
+                                            <button
+                                                onClick={() => setIntelOpen(false)}
+                                                className="w-full text-[7px] uppercase tracking-wider font-semibold py-1.5 px-3 rounded transition-all duration-300 bg-gray-800/50 text-gray-400 border border-gray-700/50 hover:bg-gray-700/50 mt-3"
+                                            >
+                                                CLOSE
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : currentPuzzle?.type === "phonekeypad" ? (
+                                <div className="p-4 bg-black/40 border border-primary/20 rounded">
+                                    {!intelOpen ? (
+                                        <button
+                                            onClick={() => setIntelOpen(true)}
+                                            className="w-full text-[8px] uppercase tracking-wider font-semibold py-2 px-3 rounded transition-all duration-300 bg-primary/20 text-primary border border-primary/50 hover:bg-primary/30"
+                                        >
+                                            INTEL
+                                        </button>
+                                    ) : (
+                                        <div className="space-y-3 text-center">
+                                            <p className="text-[8px] font-medium tracking-wide text-gray-200 leading-relaxed">
+                                                FAMILIARITY IS A TRAP.
+                                            </p>
+                                            <div className="pt-2 border-t border-yellow-500/30">
+                                                <p className="text-[8px] font-medium tracking-wide text-yellow-400 leading-relaxed">
+                                                    FIND THE STRANGER FROM ANOTHER UNIVERSE.
+                                                </p>
+                                            </div>
+                                            <button
+                                                onClick={() => setIntelOpen(false)}
+                                                className="w-full text-[7px] uppercase tracking-wider font-semibold py-1.5 px-3 rounded transition-all duration-300 bg-gray-800/50 text-gray-400 border border-gray-700/50 hover:bg-gray-700/50 mt-3"
+                                            >
+                                                CLOSE
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
                                 <div className="p-4 text-[8px] text-muted-foreground/40 leading-relaxed italic">

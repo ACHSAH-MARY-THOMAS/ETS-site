@@ -8,9 +8,25 @@ interface AnswerInputProps {
     cooldown?: number;
     compactView?: boolean;
     errorMessage?: string;
+    withExecuteButton?: boolean;
+    placeholder?: string;
+    buttonText?: string;
+    successMessage?: string;
+    feedbackPlacement?: "top" | "bottom";
 }
 
-export const AnswerInput = ({ onSubmit, disabled = false, cooldown = 0, compactView = false, errorMessage }: AnswerInputProps) => {
+export const AnswerInput = ({ 
+    onSubmit, 
+    disabled = false, 
+    cooldown = 0, 
+    compactView = false, 
+    errorMessage, 
+    withExecuteButton = false,
+    placeholder,
+    buttonText = "EXECUTE",
+    successMessage,
+    feedbackPlacement = "bottom"
+}: AnswerInputProps) => {
     const [answer, setAnswer] = useState("");
     const [status, setStatus] = useState<"idle" | "loading" | "error" | "success">("idle");
     const [remainingCooldown, setRemainingCooldown] = useState(0);
@@ -55,7 +71,7 @@ export const AnswerInput = ({ onSubmit, disabled = false, cooldown = 0, compactV
                             type="text"
                             value={answer}
                             onChange={(e) => setAnswer(e.target.value.toUpperCase())}
-                            placeholder={isLocked ? "ACCESS_LOCKED" : "DECRYPTION_KEY..."}
+                            placeholder={placeholder || (isLocked ? "ACCESS_LOCKED" : "DECRYPTION_KEY...")}
                             disabled={isLocked || status === "loading"}
                             className={`
                                 w-full px-4 py-4 md:py-5
@@ -88,7 +104,7 @@ export const AnswerInput = ({ onSubmit, disabled = false, cooldown = 0, compactV
                         ) : (
                             <>
                                 <Zap className="w-4 h-4" />
-                                EXECUTE
+                                {buttonText}
                             </>
                         )}
                     </button>
@@ -122,14 +138,51 @@ export const AnswerInput = ({ onSubmit, disabled = false, cooldown = 0, compactV
         );
     }
 
+    const feedbackContent = (
+        <AnimatePresence mode="wait">
+            {status === "error" && (
+                <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center justify-center gap-2 mt-3 mb-2 text-destructive"
+                >
+                    <AlertCircle className="w-4 h-4" />
+                    <span className="text-sm font-mono whitespace-pre-line text-center">{errorMessage || "INCORRECT KEY"}</span>
+                </motion.div>
+            )}
+            {status === "success" && (
+                <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center justify-center gap-2 mt-3 mb-2 text-green-500"
+                >
+                    <Unlock className="w-4 h-4" />
+                    <span className="text-sm font-mono whitespace-pre-line text-center">{successMessage || "ACCESS GRANTED"}</span>
+                </motion.div>
+            )}
+            {remainingCooldown > 0 && status === "idle" && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-center mt-3 text-muted-foreground text-sm font-mono"
+                >
+                    Cooldown: {remainingCooldown}s
+                </motion.div>
+            )}
+        </AnimatePresence>
+    );
+
     return (
         <form onSubmit={handleSubmit} className="w-full max-w-md mx-auto">
+            {feedbackPlacement === "top" && feedbackContent}
             <div className="relative">
                 <input
                     type="text"
                     value={answer}
                     onChange={(e) => setAnswer(e.target.value.toUpperCase())}
-                    placeholder={isLocked ? "LOCKED" : "ENTER KEY"}
+                    placeholder={placeholder || (isLocked ? "LOCKED" : "ENTER KEY")}
                     disabled={isLocked || status === "loading"}
                     className={`
             w-full px-4 py-4 pr-14
@@ -144,6 +197,7 @@ export const AnswerInput = ({ onSubmit, disabled = false, cooldown = 0, compactV
             ${isLocked ? "opacity-50 cursor-not-allowed" : ""}
           `}
                 />
+                {!withExecuteButton && (
                 <button
                     type="submit"
                     disabled={isLocked || status === "loading" || !answer.trim()}
@@ -165,30 +219,25 @@ export const AnswerInput = ({ onSubmit, disabled = false, cooldown = 0, compactV
                         <Unlock className="w-5 h-5" />
                     )}
                 </button>
+                )}
             </div>
 
-            <AnimatePresence mode="wait">
-                {status === "error" && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        className="flex items-center justify-center gap-2 mt-3 text-destructive"
+            {withExecuteButton && (
+                <div className="flex justify-center w-full">
+                    <button
+                        type="submit"
+                        disabled={isLocked || status === "loading" || !answer.trim()}
+                        className={`
+                            px-8 mt-4 py-3 bg-[#00FF41] hover:bg-[#00FF41]/80 text-black font-['Press_Start_2P'] uppercase tracking-widest text-sm transition-all duration-200 shadow-[0_0_10px_rgba(0,255,65,0.3)] hover:shadow-[0_0_20px_rgba(0,255,65,0.5)] rounded
+                            ${(isLocked || status === "loading" || !answer.trim()) ? "opacity-50 cursor-not-allowed bg-green-900/50 text-white/50 shadow-none" : ""}
+                        `}
                     >
-                        <AlertCircle className="w-4 h-4" />
-                        <span className="text-sm font-mono">{errorMessage || "INCORRECT KEY"}</span>
-                    </motion.div>
-                )}
-                {remainingCooldown > 0 && status === "idle" && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="text-center mt-3 text-muted-foreground text-sm font-mono"
-                    >
-                        Cooldown: {remainingCooldown}s
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                        {status === "loading" ? "EXECUTING..." : buttonText}
+                    </button>
+                </div>
+            )}
+
+            {feedbackPlacement === "bottom" && feedbackContent}
         </form>
     );
 };
