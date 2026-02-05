@@ -16,6 +16,7 @@ const ROOM_IMAGE = "/still-room.jpg";
 export const OpticalPuzzle = ({ onSolve, level = 6 }: OpticalPuzzleProps) => {
     const [frameOpened, setFrameOpened] = useState(false);
     const [frameFlipped, setFrameFlipped] = useState(false);
+    const [hasFlipped, setHasFlipped] = useState(false);
     const [showHint, setShowHint] = useState(false);
     const [feedback, setFeedback] = useState("");
     const [solved, setSolved] = useState(false);
@@ -29,16 +30,19 @@ export const OpticalPuzzle = ({ onSolve, level = 6 }: OpticalPuzzleProps) => {
     const handleOpenedFrameClick = () => {
         if (!frameFlipped) {
             setFrameFlipped(true);
+            setHasFlipped(true);
         }
     };
 
     const handleCloseModal = () => {
         setFrameOpened(false);
         setFrameFlipped(false);
+        setHasFlipped(false);
     };
 
     const handleGoBack = () => {
         setFrameOpened(false);
+        setFrameFlipped(false);
     };
 
     const handleSolve = async (answer: string): Promise<boolean> => {
@@ -101,20 +105,22 @@ export const OpticalPuzzle = ({ onSolve, level = 6 }: OpticalPuzzleProps) => {
 
                     
                     {/* Invisible clickable frame area - positioned over the painting */}
-                    <motion.div
-                        onClick={handleFrameClick}
-                        whileHover={{ scale: 1.02 }}
-                        className="absolute cursor-pointer"
-                        style={{
-                            left: '4%',
-                            top: '12%',
-                            width: '24%',
-                            height: '32%',
-                        }}
-                    >
-                        {/* Transparent clickable area */}
-                        <div className="w-full h-full bg-transparent" />
-                    </motion.div>
+                    {!hasFlipped && (
+                        <motion.div
+                            onClick={handleFrameClick}
+                            whileHover={{ scale: 1.02 }}
+                            className="absolute cursor-pointer"
+                            style={{
+                                left: '4%',
+                                top: '12%',
+                                width: '24%',
+                                height: '32%',
+                            }}
+                        >
+                            {/* Transparent clickable area */}
+                            <div className="w-full h-full bg-transparent" />
+                        </motion.div>
+                    )}
                 </div>
             </div>
 
@@ -158,10 +164,10 @@ export const OpticalPuzzle = ({ onSolve, level = 6 }: OpticalPuzzleProps) => {
                             >
                                 {/* Front - Painting Image */}
                                 <motion.div
-                                    onClick={handleOpenedFrameClick}
-                                    className="cursor-pointer"
+                                    onClick={!hasFlipped ? handleOpenedFrameClick : undefined}
+                                    className={!hasFlipped ? "cursor-pointer" : ""}
                                     style={{ backfaceVisibility: 'hidden' }}
-                                    whileHover={{ scale: 1.02 }}
+                                    whileHover={!hasFlipped ? { scale: 1.02 } : {}}
                                 >
                                     {/* Wooden Frame Border */}
                                     <div 
@@ -234,16 +240,13 @@ export const OpticalPuzzle = ({ onSolve, level = 6 }: OpticalPuzzleProps) => {
                                                 boxShadow: 'inset 0 4px 16px rgba(0,0,0,0.6)',
                                             }}
                                         >
-                                            {/* Handwritten style message */}
+                                            {/* Message */}
                                             <motion.div
                                                 initial={{ opacity: 0 }}
                                                 animate={{ opacity: 1 }}
                                                 transition={{ delay: 0.5 }}
                                                 className="text-center px-4"
                                             >
-                                                <p className="text-amber-100/40 text-[10px] tracking-[0.2em] mb-3">
-                                                    THE MESSAGE READS
-                                                </p>
                                                 <div 
                                                     className="text-sm md:text-base font-serif text-amber-100/70 leading-relaxed"
                                                     style={{ 
@@ -251,7 +254,7 @@ export const OpticalPuzzle = ({ onSolve, level = 6 }: OpticalPuzzleProps) => {
                                                         textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
                                                     }}
                                                 >
-                                                    {HINT}
+                                                    OPTICAL <span style={{ backgroundColor: 'black', color: 'white', padding: '2px 4px' }}>ILLUSION</span>
                                                 </div>
                                             </motion.div>
 
@@ -275,9 +278,9 @@ export const OpticalPuzzle = ({ onSolve, level = 6 }: OpticalPuzzleProps) => {
                 )}
             </AnimatePresence>
 
-            {/* Answer Input - Only shows after frame is flipped */}
+            {/* Answer Input - Only shows after going back from flipped */}
             <AnimatePresence>
-                {frameFlipped && !solved && (
+                {hasFlipped && !frameFlipped && !solved && (
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -292,12 +295,11 @@ export const OpticalPuzzle = ({ onSolve, level = 6 }: OpticalPuzzleProps) => {
                             feedbackPlacement="top"
                             disabled={solved}
                             placeholder="TYPE THE ANSWER..."
-                            buttonText="SUBMIT"
+                            buttonText="EXECUTE"
                         />
                     </motion.div>
                 )}
             </AnimatePresence>
-
 
         </motion.div>
     );
