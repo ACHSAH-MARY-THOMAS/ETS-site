@@ -89,7 +89,7 @@ const DEMO_LEVELS: Level[] = [
         type: "mcq",
         content: "Look carefully at the image.\nNothing in this room is broken — but something is wrong.\n\nDo not assume everything is fixed.",
         hint: "Light explains shadows. Shadows explain lies.",
-        answer: "ILLUSION"
+        answer: "PHONE"
     },
     {
         id: 8,
@@ -120,7 +120,7 @@ const DEMO_LEVELS: Level[] = [
         type: "threedoors",
         content: "Open doors according to binary. Initialize with 000. When clicked on any door, it becomes 1 and others become 0. Complete this 8 times to reach 111.",
         hint: "Click strategically - each door click sets that door to 1 and others to 0. After exactly 8 clicks, all three must be at state 1 (111).",
-        answer: "111"
+        answer: "BINARY"
     },
     {
         id: 12,
@@ -140,9 +140,10 @@ const DEMO_LEVELS: Level[] = [
     {
         id: 14,
         title: "Layer 14",
-        content: "THE ULTIMATE TEST\n\nThis is a placeholder for the final level.\nUpdate with actual puzzle content.\n\nCombine everything you've learned.",
-        hint: "The final challenge awaits.",
-        answer: "VICTORY"
+        type: "consequence",
+        content: "CHOICES HAVE CONSEQUENCES\n\nEvery decision you make leaves a mark in time.\nSome moments are more important than others.\n\nWhen did your journey through this maze truly begin?\nWhat time was on the clock when fate first called?\n\nEnter the time (HH:MM format)",
+        hint: "Think back to the very first puzzle you encountered. What time did the clock show?",
+        answer: "12:15"
     }
 ];
 

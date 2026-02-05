@@ -106,6 +106,10 @@ export const CodeCrackerPuzzle = ({ onSolve, level = 12 }: CodeCrackerPuzzleProp
                             onChange={(e) => handleDigitChange(index, e.target.value)}
                             onKeyDown={(e) => handleKeyDown(index, e)}
                             disabled={solved}
+                            autoComplete="off"
+                            autoCorrect="off"
+                            autoCapitalize="off"
+                            spellCheck="false"
                             className={cn(
                                 "w-14 h-14 text-center text-2xl font-bold border-2 rounded bg-black",
                                 "font-['Press_Start_2P'] focus:outline-none transition-all",

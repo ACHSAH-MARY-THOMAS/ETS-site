@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Terminal, X, ArrowLeft } from "lucide-react";
+import { AnswerInput } from "@/components/AnswerInput";
 
 interface MCQPuzzleProps {
     onSolve?: (answer: string) => void;
@@ -12,30 +13,61 @@ export const MCQPuzzle = ({ onSolve, level = 7 }: MCQPuzzleProps) => {
     const [frameOpened, setFrameOpened] = useState(false);
     const [frameFlipped, setFrameFlipped] = useState(false);
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
+    const [hasFlipped, setHasFlipped] = useState(false);
+    const [userAnswer, setUserAnswer] = useState("");
     
     // Game state
     const [feedback, setFeedback] = useState("");
     const [solved, setSolved] = useState(false);
 
-    const ANSWER = "BRAIN"; // Or whatever code is expected by the next level
-    const MC_ANSWER_ID = 3; 
+    const FINAL_ANSWER = "PHONE"; // The correct answer that proceeds to next level
+    
+    // Riddles and answers for each option
+    const riddles = {
+        1: "A. I copy you, I only exist when you stand before me.",
+        2: "B. I melt as I give light.",
+        3: "C. I speak without a mouth, I hear as ears, I hold illusion in my screen.",
+        4: "D. I have buttons but I'm not a shirt, I control digital things from afar."
+    };
+
+    const answers = {
+        1: "MIRROR",
+        2: "CANDLE",
+        3: "PHONE",
+        4: "REMOTE"
+    };
 
     const handleOptionSelect = (optionId: number) => {
         if (!solved) {
             setSelectedOption(optionId);
             setFrameOpened(true);
             setFrameFlipped(true);
+            setHasFlipped(true);
+            setFeedback("");
+            setUserAnswer("");
+        }
+    };
+
+    const handleSubmitAnswer = async (answer: string): Promise<boolean> => {
+        if (!selectedOption) return false;
+
+        const trimmedAnswer = answer.trim().toUpperCase();
+        const correctAnswer = answers[selectedOption as keyof typeof answers];
+
+        if (trimmedAnswer === correctAnswer) {
+            setFeedback("✓ CORRECT ANSWER!");
             
-            // Logic for checking answer
-             if (optionId === MC_ANSWER_ID) { 
-                 setSolved(true);
-                 setFeedback("✓ CORRECT. VISION IS IMPERFECT.");
-                 setTimeout(() => {
-                     onSolve?.(ANSWER);
-                 }, 1500);
-             } else {
-                 setFeedback("✗ INCORRECT INTERPRETATION.");
-             }
+            // Only proceed to next level if it's option 3 (PHONE)
+            if (selectedOption === 3) {
+                setSolved(true);
+                setTimeout(() => {
+                    onSolve?.(FINAL_ANSWER);
+                }, 1500);
+            }
+            return true;
+        } else {
+            setFeedback("✗ INCORRECT. TRY AGAIN.");
+            return false;
         }
     };
 
@@ -44,13 +76,12 @@ export const MCQPuzzle = ({ onSolve, level = 7 }: MCQPuzzleProps) => {
         setFrameFlipped(false);
         setSelectedOption(null);
         setFeedback("");
+        setUserAnswer("");
     };
 
     const handleGoBack = () => {
         setFrameOpened(false);
-        setFrameFlipped(false); 
-        // Resetting selected option might be desired or not
-        setSelectedOption(null);
+        setFrameFlipped(false);
     };
 
     return (
@@ -81,7 +112,7 @@ export const MCQPuzzle = ({ onSolve, level = 7 }: MCQPuzzleProps) => {
             {/* Question */}
             <div className="text-left space-y-1 px-5 pt-4 pb-2 flex-shrink-0">
                 <p className="text-xs md:text-sm font-['Press_Start_2P'] text-foreground leading-relaxed">
-                    WHY DOES AN OPTICAL ILLUSION HAPPEN?
+                    SOLVE THE RIDDLES TO FIND THE KEY
                 </p>
             </div>
 
@@ -112,7 +143,7 @@ export const MCQPuzzle = ({ onSolve, level = 7 }: MCQPuzzleProps) => {
                         </button>
                         <button
                             onClick={() => handleOptionSelect(2)}
-                            disabled={solved} // Assuming option 2 was "The light is changing" in the old code, or I should rename them
+                            disabled={solved}
                             className={`w-full bg-black/70 backdrop-blur-sm border-2 rounded p-2 transition-all cursor-pointer hover:bg-black/80 hover:border-primary/50 ${
                                 selectedOption === 2 ? "border-primary bg-primary/20" : "border-primary/30"
                             } ${solved ? "opacity-50 cursor-not-allowed" : ""}`}
@@ -267,24 +298,21 @@ export const MCQPuzzle = ({ onSolve, level = 7 }: MCQPuzzleProps) => {
                                                 boxShadow: 'inset 0 4px 16px rgba(0,0,0,0.6)',
                                             }}
                                         >
-                                            {/* Message */}
+                                            {/* Riddle Message */}
                                             <motion.div
                                                 initial={{ opacity: 0 }}
                                                 animate={{ opacity: 1 }}
                                                 transition={{ delay: 0.5 }}
                                                 className="text-center px-4"
                                             >
-                                                <p className={`text-[10px] tracking-[0.2em] mb-3 ${solved ? "text-green-400" : "text-red-400"}`}>
-                                                    {solved ? "ACCESS GRANTED" : "ACCESS DENIED"}
-                                                </p>
                                                 <div 
-                                                    className="text-sm md:text-base font-serif text-amber-100/70 leading-relaxed"
+                                                    className="text-xs md:text-sm font-serif text-amber-100/90 leading-relaxed"
                                                     style={{ 
                                                         fontFamily: 'Georgia, serif',
                                                         textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
                                                     }}
                                                 >
-                                                    {feedback}
+                                                    {selectedOption && riddles[selectedOption as keyof typeof riddles]}
                                                 </div>
                                             </motion.div>
 
@@ -304,6 +332,29 @@ export const MCQPuzzle = ({ onSolve, level = 7 }: MCQPuzzleProps) => {
                                 </motion.div>
                             </motion.div>
                         </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Answer Input - Shows on main page after going back from flipped */}
+            <AnimatePresence>
+                {hasFlipped && !frameOpened && selectedOption && !solved && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="mt-2 flex-shrink-0 w-full max-w-md mx-auto px-4"
+                    >
+                        <AnswerInput
+                            onSubmit={handleSubmitAnswer}
+                            successMessage={feedback}
+                            errorMessage={feedback}
+                            withExecuteButton
+                            feedbackPlacement="top"
+                            disabled={false}
+                            placeholder="TYPE THE ANSWER..."
+                            buttonText="EXECUTE"
+                        />
                     </motion.div>
                 )}
             </AnimatePresence>
