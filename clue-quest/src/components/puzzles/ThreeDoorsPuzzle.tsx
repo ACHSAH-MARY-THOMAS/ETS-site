@@ -249,83 +249,101 @@ export const ThreeDoorsPuzzle = ({ onSolve, level = 11 }: ThreeDoorsPuzzleProps)
     };
 
     return (
-        <div 
-            className="w-full h-full flex flex-col overflow-hidden"
-        >
+        <div className="w-full flex-1 min-h-0 glass-card-glow rounded-sm overflow-hidden transition-all duration-300 flex flex-col">
             {/* Header */}
-            <div className="bg-gradient-to-r from-secondary/60 to-secondary/40 px-5 py-3.5 border-b-2 border-primary/30 flex items-center gap-3 flex-shrink-0 shadow-lg">
+            <div className="bg-gradient-to-r from-secondary/60 to-secondary/40 px-5 py-3.5 border-b-2 border-primary/30 flex items-center gap-3 flex-shrink-0 shadow-lg relative">
                 <Terminal className="h-5 w-5 text-primary animate-pulse" />
                 <span className="text-sm uppercase tracking-[0.25em] text-primary font-bold">
                     Security Layer {level.toString().padStart(2, '0')}
                 </span>
             </div>
 
-            {/* Main Content */}
-            <div 
-                className="flex-1 flex flex-col items-center justify-center p-4 overflow-hidden relative"
+            {/* Content */}
+            <div className="px-3 py-2 space-y-1 flex flex-col flex-1 min-h-0 overflow-y-auto w-full"
                 style={{
                     background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)'
                 }}
             >
-            {/* Puzzle Frame */}
-            <div 
-                className="relative p-4 md:p-8 rounded-2xl overflow-hidden"
-                style={{
-                    background: 'linear-gradient(to bottom, #2a1810, #1a0f08)',
-                    boxShadow: '0 20px 60px rgba(0, 0, 0, 0.8)'
-                }}
-            >
-                {/* Frame border */}
-                <div className="absolute top-2 left-2 right-2 bottom-2 border-2 border-[#8b4513] rounded-xl pointer-events-none z-0" />
-
-                {/* Three Doors */}
-                <div className="flex gap-3 md:gap-6 justify-center items-center relative z-10 mb-4">
-                    <ShojiDoor index={0} isOpen={doorStates[0] === 1} />
-                    <ShojiDoor index={1} isOpen={doorStates[1] === 1} />
-                    <ShojiDoor index={2} isOpen={doorStates[2] === 1} />
+                {/* Question Header */}
+                <div className="space-y-1 flex flex-col flex-shrink-0">
+                    <div className="text-xs uppercase tracking-[0.15em] text-muted-foreground flex items-center gap-2 py-1 border-l-2 border-primary/50 pl-3 bg-primary/5 flex-shrink-0">
+                        <span className="text-primary font-bold text-sm">&gt;</span> 
+                        <span className="text-primary/90 font-semibold">BINARY SEQUENCE</span>
+                    </div>
                 </div>
 
-                {/* Proceed Button - always visible */}
-                <div className="mt-3 flex flex-col items-center gap-2">
-                    <button
-                        onClick={handleProceed}
-                        disabled={puzzleSolved}
-                        className={cn(
-                            "px-6 py-2 rounded-lg font-bold text-sm transition-all",
-                            "bg-[#d4af37] text-[#1a0f08] hover:bg-[#FFD700]",
-                            puzzleSolved && "opacity-50 cursor-not-allowed"
-                        )}
+                <div className="flex-1 flex flex-col items-center justify-center p-4 relative w-full">
+                    {/* Puzzle Frame */}
+                    <div 
+                        className="relative p-4 md:p-8 rounded-2xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-[#8b4513]/30"
+                        style={{
+                            background: 'linear-gradient(to bottom, #2a1810, #1a0f08)',
+                        }}
                     >
-                        PROCEED
-                    </button>
-                    {status && statusType && (
-                        <div className={cn(
-                            "text-sm font-bold",
-                            statusType === "success" && "text-green-400",
-                            statusType === "error" && "text-red-400"
-                        )}>
-                            {status}
-                        </div>
-                    )}
-                </div>
+                        {/* Frame border */}
+                        <div className="absolute top-2 left-2 right-2 bottom-2 border-2 border-[#8b4513] rounded-xl pointer-events-none z-0 opacity-50" />
 
-                {/* Sequence Hint (shown after 10 minutes) */}
-                {showSequenceHint && !puzzleSolved && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mt-4 p-4 bg-[#d4af37]/10 border border-[#d4af37]/30 rounded-lg"
-                    >
-                        <div className="text-xs text-[#d4af37] font-mono space-y-2">
-                            <div className="text-center text-[10px] uppercase tracking-wider mb-2 text-[#f0e6d2]">HINT: Door Sequences</div>
-                            <div>Door 1: 000→100→001→101→010→110→011→111</div>
-                            <div>Door 2: 000→010→100→110→001→011→101→111</div>
-                            <div>Door 3: 000→001→010→011→100→101→110→111</div>
+                        {/* Three Doors */}
+                        <div className="flex gap-4 md:gap-8 justify-center items-center relative z-10 mb-6 scale-90 md:scale-100">
+                            <ShojiDoor index={0} isOpen={doorStates[0] === 1} />
+                            <ShojiDoor index={1} isOpen={doorStates[1] === 1} />
+                            <ShojiDoor index={2} isOpen={doorStates[2] === 1} />
                         </div>
-                    </motion.div>
-                )}
+
+                        {/* Status Text inside card to keep it self-contained */}
+                        <div className="relative z-10 text-center space-y-2 mt-4 max-w-lg mx-auto bg-black/40 p-3 rounded-lg border border-[#8b4513]/30 backdrop-blur-sm">
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={status}
+                                    initial={{ opacity: 0, y: 5 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -5 }}
+                                    className={cn(
+                                        "text-xs md:text-sm font-mono tracking-wide",
+                                        statusType === 'success' ? "text-green-400 font-bold" :
+                                        statusType === 'error' ? "text-red-400" :
+                                        "text-[#d4af37]"
+                                    )}
+                                >
+                                    {status}
+                                </motion.div>
+                            </AnimatePresence>
+                            
+                            <AnimatePresence>
+                                {(showSequenceHint || hint) && (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        className="text-[10px] text-[#8b4513] italic font-serif"
+                                    >
+                                        {hint}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    </div>
+                </div>
             </div>
 
+            {/* Footer Actions */}
+            <div className="bg-black/80 border-t border-[#8b4513]/30 p-4 z-20 backdrop-blur-md flex justify-center gap-4">
+                 <button
+                    onClick={resetPuzzle}
+                    className="px-6 py-2 rounded-lg font-bold text-xs transition-all bg-[#2a1810] text-[#d4af37] border border-[#8b4513] hover:bg-[#3a2015] hover:text-[#FFD700]"
+                >
+                    RESET
+                </button>
+                <button
+                    onClick={handleProceed}
+                    disabled={puzzleSolved}
+                    className={cn(
+                        "px-8 py-2 rounded-lg font-bold text-xs transition-all shadow-[0_0_15px_rgba(212,175,55,0.2)]",
+                        "bg-[#d4af37] text-[#1a0f08] hover:bg-[#FFD700] hover:shadow-[0_0_20px_rgba(212,175,55,0.4)]",
+                        puzzleSolved && "opacity-50 cursor-not-allowed bg-green-500 text-white shadow-none hover:bg-green-500 hover:shadow-none border-none"
+                    )}
+                >
+                     {puzzleSolved ? 'UNLOCKED' : 'PROCEED'}
+                </button>
             </div>
         </div>
     );

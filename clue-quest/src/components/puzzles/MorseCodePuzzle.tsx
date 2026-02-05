@@ -52,33 +52,26 @@ export const MorseCodePuzzle = ({ onSolve, level = 3 }: MorseCodePuzzleProps) =>
                 </span>
             </div>
 
-            {/* Subheader */}
-            <div className="bg-secondary/20 px-5 py-2 border-b border-primary/20 flex-shrink-0">
-                <div className="flex items-center gap-2">
-                    <span className="text-primary text-lg">&gt;</span>
-                    <span className="text-xs uppercase tracking-[0.2em] text-primary/90 font-semibold">
-                        SIGNAL INTERPRETATION CHALLENGE
-                    </span>
-                </div>
-            </div>
-
             {/* Content */}
-            <div className="px-3 py-2 space-y-4 flex flex-col flex-1 min-h-0 overflow-y-auto w-full">
-                {/* Question/Title */}
-                <div className="text-left space-y-1 flex-shrink-0">
-                    <p className="text-xs md:text-sm font-['Press_Start_2P'] text-foreground leading-relaxed">
-                        NOT ALL MESSAGES ARE MEANT TO BE READ.
-                    </p>
-                    <p className="text-xs md:text-sm font-['Press_Start_2P'] text-foreground leading-relaxed">
-                        SOME ARE MEANT TO BE INTERPRETED.
-                    </p>
-                    <p className="text-xs md:text-sm font-['Press_Start_2P'] text-foreground leading-relaxed">
-                        READ THE SIGNAL. IGNORE THE NOISE.
-                    </p>
+            <div className="px-3 py-2 space-y-1 flex flex-col flex-1 min-h-0 overflow-y-auto w-full">
+                {/* Question Header */}
+                <div className="space-y-1 flex flex-col">
+                    <div className="text-xs uppercase tracking-[0.15em] text-muted-foreground flex items-center gap-2 py-1 border-l-2 border-primary/50 pl-3 bg-primary/5 flex-shrink-0">
+                        <span className="text-primary font-bold text-sm">&gt;</span> 
+                        <span className="text-primary/90 font-semibold">SIGNAL INTERPRETATION CHALLENGE</span>
+                    </div>
+
+                    <div className="glass-card p-3 md:p-4 rounded-sm flex flex-col gap-3 border border-primary/10">
+                        {/* Text Section */}
+                        <div className="text-foreground flex-shrink-0 text-left space-y-1">
+                            <p className="text-xs md:text-sm font-medium tracking-wide">NOT ALL MESSAGES ARE MEANT TO BE READ. SOME ARE MEANT TO BE INTERPRETED.</p>
+                            <p className="text-xs md:text-sm font-medium tracking-wide">READ THE SIGNAL. IGNORE THE NOISE.</p>
+                        </div>
+                    </div>
                 </div>
 
             {/* Morse Code Display */}
-            <div className="border-4 border-primary/50 rounded-lg p-6 bg-black/60 space-y-4">
+            <div className="border-4 border-primary/50 rounded-lg p-6 bg-black/60 space-y-4 mt-3">
                 <h3 className="text-xs font-['Press_Start_2P'] text-primary text-center mb-2">
                     MORSE CODE MESSAGE
                 </h3>

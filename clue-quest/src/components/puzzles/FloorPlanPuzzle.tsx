@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Lightbulb, Terminal } from "lucide-react";
+import { Lightbulb, Terminal, ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface FloorPlanPuzzleProps {
     onSolve?: (answer: string) => void;
@@ -23,11 +24,11 @@ export const FloorPlanPuzzle = ({ onSolve, level = 10 }: FloorPlanPuzzleProps) =
     const [solved, setSolved] = useState(false);
 
     // Large asymmetric honeycomb - proper alternating offset
-    const r = 30; // UPDATED: Increased Hexagon radius
+    const r = 38; // UPDATED: Increased Hexagon radius for larger view
     const vDist = r * 1.5; // Vertical distance for perfectly touching hexagons
     const hDist = r * Math.sqrt(3); // Horizontal distance for perfectly touching hexagons
     const cx = 350; // UPDATED: Centered horizontally in 700px viewBox
-    const cy = 270; // UPDATED: Centered vertically (shifted down to prevent clipping top)
+    const cy = 330; // UPDATED: Centered vertically (shifted down to accommodate larger grid)
     
     // 8-layer honeycomb with proper alternating offset (41 total hexagons - odd number)
     const hexagons: Hexagon[] = [
@@ -163,10 +164,6 @@ export const FloorPlanPuzzle = ({ onSolve, level = 10 }: FloorPlanPuzzleProps) =
             if (isWinning) {
                 setSolved(true);
                 setFeedback("✨ PERFECT COVERAGE! MAXIMUM LIGHT ACHIEVED!");
-                // Delay moving to the next level so the player can see the success state
-                setTimeout(() => {
-                    if (onSolve) onSolve("triangle");
-                }, 2000);
             } else {
                 setFeedback("❌ Insufficient coverage. Press RESET to try again.");
             }
@@ -194,214 +191,251 @@ export const FloorPlanPuzzle = ({ onSolve, level = 10 }: FloorPlanPuzzleProps) =
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="w-full max-w-4xl mx-auto space-y-6"
-        >
-            {/* Security Layer Header */}
-            <motion.div
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                className="glass-card-glow rounded-lg p-4 mb-6"
-            >
-                <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                        <Terminal className="text-primary" size={24} />
-                        <h2 className="font-['Press_Start_2P'] text-sm text-primary">
-                            Security Layer {level?.toString().padStart(2, '0')}
-                        </h2>
+        <div className="w-full flex-1 min-h-0 glass-card-glow rounded-sm overflow-hidden transition-all duration-300 flex flex-col relative">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-secondary/60 to-secondary/40 px-5 py-3.5 border-b-2 border-primary/30 flex items-center gap-3 flex-shrink-0 shadow-lg relative">
+                <Terminal className="h-5 w-5 text-primary animate-pulse" />
+                <span className="text-sm uppercase tracking-[0.25em] text-primary font-bold">
+                    Security Layer {level.toString().padStart(2, '0')}
+                </span>
+            </div>
+
+            {/* Content */}
+            <div className="px-3 py-2 space-y-1 flex flex-col flex-1 min-h-0 overflow-y-auto w-full relative">
+                {/* Question Header */}
+                <div className="space-y-1 flex flex-col flex-shrink-0">
+                    <div className="text-xs uppercase tracking-[0.15em] text-muted-foreground flex items-center gap-2 py-1 border-l-2 border-primary/50 pl-3 bg-primary/5 flex-shrink-0">
+                        <span className="text-primary font-bold text-sm">&gt;</span> 
+                        <span className="text-primary/90 font-semibold">FLOOR PLAN ANALYSIS</span>
                     </div>
-                    <Button
-                        onClick={resetPuzzle}
-                        disabled={solved}
-                        variant="outline"
-                        size="sm"
-                        className="font-['Press_Start_2P'] text-[8px] uppercase hover:bg-primary/10 border-primary/50 text-primary h-8"
-                    >
-                        RESET
-                    </Button>
                 </div>
-                <p className="font-['Press_Start_2P'] text-[10px] text-primary/90 leading-relaxed">
-                    THE PLAYER HAS THREE LIGHTS
-                </p>
-                <p className="font-['Press_Start_2P'] text-[10px] text-primary/90 leading-relaxed mt-2">
-                    FIND THE TRIANGLE THAT MAXIMIZES COVERAGE
-                </p>
-                <p className="font-['Press_Start_2P'] text-[10px] text-primary/90 leading-relaxed mt-2">
-                    LIGHT UP THREE AREAS THAT COVER MAXIMUM AREA. YOU ONLY HAVE THREE CLICKS, THEN YOU MUST RESET TO PLACE LIGHTS AGAIN.
-                </p>
-            </motion.div>
 
-            {/* Hexagon Pattern */}
-            <div className="glass-card-glow rounded-lg p-8">
-                <div className="relative w-full max-w-3xl mx-auto" style={{ height: "540px" }}>
-                    <svg
-                        viewBox="0 0 700 540"
-                        className="w-full h-full"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        {/* Connection Lines (Draw triangle ONLY if solved) */}
-                        {litHexagons.size === 3 && solved && (
-                            <path
-                                d={`M ${Array.from(litHexagons).map(id => {
-                                    const h = hexagons.find(hex => hex.id === id);
-                                    return `${h?.x},${h?.y}`;
-                                }).join(" L ")} Z`}
-                                stroke="#22c55e"
-                                strokeWidth="2"
-                                fill="#22c55e20"
-                                className="pointer-events-none transition-all duration-500"
-                            />
-                        )}
+                 {/* Instructions */}
+                 <div className="px-3 py-2 bg-primary/5 border border-primary/10 rounded mb-2 flex-shrink-0">
+                     <p className="font-['Press_Start_2P'] text-[9px] md:text-[10px] text-primary/80 leading-relaxed text-center">
+                        LIGHT UP 3 ZONES TO MAXIMIZE AREA COVERAGE. <br/>
+                        <span className="text-red-400">NOTE: YOU ONLY HAVE 3 CLICKS.</span>
+                    </p>
+                 </div>
 
-                        {/* Draw hexagons */}
-                        {hexagons.map((hex) => {
-                            const intensity = lightMap.get(hex.id) || 0;
-                            const isSource = intensity === 2;
-                            const isCovered = intensity >= 1;
+                {/* SVG Container */}
+                <div className="flex-1 min-h-0 flex items-center justify-center relative overflow-hidden bg-black/40 rounded-lg border border-primary/20 shadow-inner p-2 md:p-4">
+                     {/* Reset Button (Top Right) */}
+                    <div className="absolute top-4 right-4 z-10">
+                         <Button
+                            onClick={resetPuzzle}
+                            disabled={solved && litHexagons.size === 0}
+                            className="font-['Press_Start_2P'] text-[10px] uppercase bg-black/60 hover:bg-primary/40 border border-primary/50 text-primary h-7 px-3 backdrop-blur-sm shadow-lg"
+                        >
+                            RESET
+                        </Button>
+                    </div>
 
-                            // -- Ambient Feedback Logic --
-                            let ambientScale = 1;
-                            let ambientOpacity = 0; // 0 to 1
-                            let ambientColor = "transparent";
-                            
-                            if (hoveredHex !== null) {
-                                const hoverSource = hexagons.find(h => h.id === hoveredHex);
-                                if (hoverSource) {
-                                    const dist = getDistance(hex, hoverSource);
-                                    const isCorrectHover = correctSet.has(hoveredHex);
-                                    const reactionRadius = isCorrectHover ? r * 8 : r * 3; // Correct hexes feel "larger"
+                     <div className="w-full h-full flex items-center justify-center">
+                        <svg
+                            viewBox="0 0 700 540"
+                            className="w-full h-full max-h-full object-contain"
+                            preserveAspectRatio="xMidYMid meet"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
 
-                                    if (dist < reactionRadius) {
-                                        // Normalized intensity (1 = close, 0 = far)
-                                        const power = 1 - (dist / reactionRadius);
-                                        
-                                        if (isCorrectHover) {
-                                            // Strong, calm, symmetrical ripple (Cyan/Blue hint)
-                                            ambientOpacity = power * 0.15; 
-                                            ambientScale = 1 + (power * 0.05); 
-                                            ambientColor = "#06b6d4"; // Unified Cyan
-                                        } else {
-                                            // Weak, irregular flicker (Cyan - same color, different feel)
-                                            // Add some noise based on ID to feel "irregular"
-                                            const noise = (hex.id % 3) * 0.5; 
-                                            ambientOpacity = power * 0.05 * noise;
-                                            ambientScale = 1 + (power * 0.02 * (hex.id % 2 === 0 ? 1 : -0.5));
-                                            ambientColor = "#06b6d4"; // Unified Cyan
+
+                            {/* Draw hexagons */}
+                            {hexagons.map((hex) => {
+                                const intensity = lightMap.get(hex.id) || 0;
+                                const isSource = intensity === 2;
+                                const isCovered = intensity >= 1;
+
+                                // -- Ambient Feedback Logic --
+                                let ambientScale = 1;
+                                let ambientOpacity = 0; // 0 to 1
+                                let ambientColor = "transparent";
+                                
+                                if (hoveredHex !== null) {
+                                    const hoverSource = hexagons.find(h => h.id === hoveredHex);
+                                    if (hoverSource) {
+                                        const dist = getDistance(hex, hoverSource);
+                                        const isCorrectHover = correctSet.has(hoveredHex);
+                                        const reactionRadius = isCorrectHover ? r * 8 : r * 3; // Correct hexes feel "larger"
+
+                                        if (dist < reactionRadius) {
+                                            // Normalized intensity (1 = close, 0 = far)
+                                            const power = 1 - (dist / reactionRadius);
+                                            
+                                            if (isCorrectHover) {
+                                                // Strong, calm, symmetrical ripple (Cyan/Blue hint)
+                                                ambientOpacity = power * 0.15; 
+                                                ambientScale = 1 + (power * 0.05); 
+                                                ambientColor = "#06b6d4"; // Unified Cyan
+                                            } else {
+                                                // Weak, irregular flicker (Cyan - same color, different feel)
+                                                // Add some noise based on ID to feel "irregular"
+                                                const noise = (hex.id % 3) * 0.5; 
+                                                ambientOpacity = power * 0.05 * noise;
+                                                ambientScale = 1 + (power * 0.02 * (hex.id % 2 === 0 ? 1 : -0.5));
+                                                ambientColor = "#06b6d4"; // Unified Cyan
+                                            }
                                         }
                                     }
                                 }
-                            }
 
-                            // If solution nodes are active/hovered, they might harmonize? 
-                            // Check if current node is 'Correct' and hovered - give it extra "calm"
-                            if (correctSet.has(hex.id) && hoveredHex === hex.id) {
-                                ambientColor = "#06b6d4";
-                                ambientOpacity = 0.2;
-                                ambientScale = 1.05;
-                            }
+                                // If solution nodes are active/hovered, they might harmonize? 
+                                // Check if current node is 'Correct' and hovered - give it extra "calm"
+                                if (correctSet.has(hex.id) && hoveredHex === hex.id) {
+                                    ambientColor = "#06b6d4";
+                                    ambientOpacity = 0.2;
+                                    ambientScale = 1.05;
+                                }
 
+                                // Colors: Source=Bright Green, Covered=Dim Green, Unlit=Gray
+                                const strokeColor = isSource ? "#22c55e" : (isCovered ? "#4ade80" : "#4b5563");
+                                const shadow = isSource 
+                                    ? "drop-shadow(0 0 15px #22c55e)" 
+                                    : (isCovered ? "drop-shadow(0 0 5px #4ade80)" : "none");
 
-                            // Colors: Source=Bright Green, Covered=Dim Green, Unlit=Gray
-                            const strokeColor = isSource ? "#22c55e" : (isCovered ? "#4ade80" : "#4b5563");
-                            const shadow = isSource 
-                                ? "drop-shadow(0 0 15px #22c55e)" 
-                                : (isCovered ? "drop-shadow(0 0 5px #4ade80)" : "none");
-
-                            return (
-                                <g key={hex.id} 
-                                   onMouseEnter={() => setHoveredHex(hex.id)}
-                                   onMouseLeave={() => setHoveredHex(null)}
-                                >
-                                    {/* Ambient Glow Underlay */}
-                                    <motion.path
-                                        d={getHexagonPath(hex.x, hex.y)}
-                                        fill={ambientColor}
-                                        stroke="transparent"
-                                        initial={false}
-                                        animate={{ 
-                                            opacity: ambientOpacity,
-                                            scale: ambientScale 
-                                        }}
-                                        transition={{ 
-                                            duration: correctSet.has(hoveredHex || -1) ? 0.8 : 0.2, // Slow calm vs fast jitter
-                                            ease: "easeInOut"
-                                        }}
-                                        className="pointer-events-none"
-                                        style={{ transformOrigin: `${hex.x}px ${hex.y}px` }} 
-                                    />
-
-                                    <motion.path
-                                        d={getHexagonPath(hex.x, hex.y)}
-                                        fill={isCovered ? "#22c55e20" : "transparent"} // Slight fill for covered area
-                                        stroke={strokeColor}
-                                        strokeWidth={isSource ? "3" : "2"}
-                                        onClick={() => handleHexagonClick(hex.id)}
-                                        className="cursor-pointer transition-all duration-300"
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        style={{ filter: shadow }}
-                                    />
-                                    {/* Center Dot Indicator */}
-                                    <circle
-                                        cx={hex.x}
-                                        cy={hex.y}
-                                        r={isSource ? 8 : (isCovered ? 4 : 2)}
-                                        fill={isSource ? "#22c55e" : (isCovered ? "#4ade80" : "#6b7280")}
-                                        className="pointer-events-none"
-                                        opacity={isCovered ? 1 : 0.5}
+                                return (
+                                    <g key={hex.id} 
+                                       onMouseEnter={() => setHoveredHex(hex.id)}
+                                       onMouseLeave={() => setHoveredHex(null)}
                                     >
-                                        {isSource && (
-                                            <animate
-                                                attributeName="opacity"
-                                                values="1;0.5;1"
-                                                dur="1s"
-                                                repeatCount="indefinite"
-                                            />
-                                        )}
+                                        {/* Ambient Glow Underlay */}
+                                        <motion.path
+                                            d={getHexagonPath(hex.x, hex.y, r)}
+                                            fill={ambientColor}
+                                            stroke="transparent"
+                                            initial={false}
+                                            animate={{ 
+                                                opacity: ambientOpacity,
+                                                scale: ambientScale 
+                                            }}
+                                            transition={{ 
+                                                duration: correctSet.has(hoveredHex || -1) ? 0.8 : 0.2, // Slow calm vs fast jitter
+                                                ease: "easeInOut"
+                                            }}
+                                            className="pointer-events-none"
+                                            style={{ transformOrigin: `${hex.x}px ${hex.y}px` }} 
+                                        />
+
+                                        <motion.path
+                                            d={getHexagonPath(hex.x, hex.y, r)}
+                                            fill={isCovered ? "#22c55e20" : "transparent"} // Slight fill for covered area
+                                            stroke={strokeColor}
+                                            strokeWidth={isSource ? "3" : "2"}
+                                            onClick={() => handleHexagonClick(hex.id)}
+                                            className={cn(
+                                                "cursor-pointer transition-all duration-300",
+                                                !solved && "hover:fill-[#4ade80]/10"
+                                            )}
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            style={{ filter: shadow }}
+                                        />
+                                        {/* Center Dot Indicator */}
+                                        <circle
+                                            cx={hex.x}
+                                            cy={hex.y}
+                                            r={isSource ? 8 : (isCovered ? 4 : 2)}
+                                            fill={isSource ? "#22c55e" : (isCovered ? "#4ade80" : "#6b7280")}
+                                            className="pointer-events-none"
+                                            opacity={isCovered ? 1 : 0.5}
+                                        >
+                                            {isSource && (
+                                                <animate
+                                                    attributeName="opacity"
+                                                    values="1;0.5;1"
+                                                    dur="1s"
+                                                    repeatCount="indefinite"
+                                                />
+                                            )}
+                                        </circle>
+                                    </g>
+                                );
+                            })}
+
+                            {/* Connection Lines (Draw triangle ONLY if solved) */}
+                            {litHexagons.size === 3 && solved && (
+                                <motion.path
+                                    d={`M ${Array.from(litHexagons).map(id => {
+                                        const h = hexagons.find(hex => hex.id === id);
+                                        return `${h?.x},${h?.y}`;
+                                    }).join(" L ")} Z`}
+                                    initial={{ pathLength: 0, fillOpacity: 0 }}
+                                    animate={{ pathLength: 1, fillOpacity: 1 }}
+                                    transition={{ 
+                                        pathLength: { duration: 1.5, ease: "easeInOut" },
+                                        fillOpacity: { duration: 0.8, ease: "easeIn", delay: 1.5 }
+                                    }}
+                                    stroke="#ffffff"
+                                    strokeWidth="4"
+                                    fill="#22c55e"
+                                    className="pointer-events-none drop-shadow-[0_0_1px_rgba(255,255,255,0.2)]"
+                                />
+                            )}
+
+                            {/* Re-draw Source Nodes on Top */}
+                            {litHexagons.size === 3 && solved && Array.from(litHexagons).map(id => {
+                                const h = hexagons.find(hex => hex.id === id);
+                                if (!h) return null;
+                                return (
+                                    <circle
+                                        key={`top-${id}`}
+                                        cx={h.x}
+                                        cy={h.y}
+                                        r={8}
+                                        fill="#22c55e"
+                                        className="pointer-events-none"
+                                    >
+                                        <animate
+                                            attributeName="opacity"
+                                            values="1;0.5;1"
+                                            dur="1s"
+                                            repeatCount="indefinite"
+                                        />
                                     </circle>
-                                </g>
-                            );
-                        })}
-                    </svg>
+                                );
+                            })}
+                        </svg>
+                     </div>
                 </div>
             </div>
 
-            {/* Progress & Controls */}
-            <div className="space-y-4">
-                <div className="flex items-center justify-between glass-card rounded-lg p-4">
-                    <div className="font-['Press_Start_2P'] text-[10px] text-primary">
-                        LIGHTS PLACED: {litHexagons.size} / 3
-                    </div>
-                    <Button
-                        onClick={resetPuzzle}
-                        disabled={solved}
-                        variant="outline"
-                        className="font-['Press_Start_2P'] text-[8px] uppercase hover:bg-primary/10"
+            {/* Footer with Reset */}
+            <div className="p-4 z-20 relative bg-black/50 border-t border-primary/20 backdrop-blur-sm flex items-center justify-between">
+                <div className="font-['Press_Start_2P'] text-[10px] text-primary flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${litHexagons.size >= 1 ? 'bg-primary shadow-[0_0_5px_#22c55e]' : 'bg-primary/20'}`} />
+                    <div className={`w-2 h-2 rounded-full ${litHexagons.size >= 2 ? 'bg-primary shadow-[0_0_5px_#22c55e]' : 'bg-primary/20'}`} />
+                    <div className={`w-2 h-2 rounded-full ${litHexagons.size >= 3 ? 'bg-primary shadow-[0_0_5px_#22c55e]' : 'bg-primary/20'}`} />
+                    <span className="ml-2 hidden sm:inline">NODES: {litHexagons.size}/3</span>
+                </div>
+
+                {solved && (
+                     <Button
+                        onClick={() => onSolve?.("SAFEPATH")}
+                        className="font-['Press_Start_2P'] text-[10px] uppercase bg-green-500/20 hover:bg-green-500/40 border border-green-500/50 text-green-400 h-8 flex items-center gap-2 animate-pulse"
                     >
-                        RESET
+                        PROCEED <ArrowRight className="h-3 w-3" />
                     </Button>
-                </div>
-
-                {/* Feedback */}
-                <AnimatePresence>
-                    {feedback && (
-                        <motion.div
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            className={`text-center text-xs font-['Press_Start_2P'] p-3 rounded border-2 ${
-                                solved
-                                    ? "bg-green-500/20 text-green-400 border-green-500"
-                                    : "bg-yellow-500/20 text-yellow-400 border-yellow-500"
-                            }`}
-                        >
-                            {feedback}
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                )}
             </div>
-        </motion.div>
+
+            {/* Floating Feedback Overlay */}
+            <AnimatePresence>
+                {feedback && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 50 }}
+                        className={cn(
+                            "absolute bottom-20 left-1/2 -translate-x-1/2 z-30 font-['Press_Start_2P'] text-[10px] md:text-xs p-3 rounded border-2 shadow-2xl backdrop-blur-md text-center max-w-[90%]",
+                             solved
+                                ? "bg-green-900/95 text-green-400 border-green-500"
+                                : "bg-red-900/95 text-red-400 border-red-500"
+                        )}
+                    >
+                        {feedback}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
     );
 };

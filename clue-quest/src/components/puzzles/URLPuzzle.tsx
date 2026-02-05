@@ -126,7 +126,7 @@ export const URLPuzzle = ({ onSolve, level = 2 }: URLPuzzleProps) => {
                 </div>
 
                 {/* Noisy Background with URLs */}
-                <div className="relative bg-black/80 border-2 border-primary/30 rounded-lg p-6 overflow-hidden mt-3">
+                <div className="relative bg-black/80 border-2 border-primary/30 rounded-lg p-6 overflow-y-auto custom-scrollbar mt-3 max-h-[500px]">
                 {/* Random text background */}
                 <div className="absolute inset-0 overflow-hidden opacity-20 font-mono text-[8px] leading-tight text-green-500 pointer-events-none">
                     {randomNoise}

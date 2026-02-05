@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, XCircle, HelpCircle, MapPin, Target, RotateCcw } from "lucide-react";
+import { CheckCircle, XCircle, HelpCircle, MapPin, Target, RotateCcw, Terminal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface GuidingHelperPuzzleProps {
     onSolve?: (answer: string) => void;
+    level?: number;
 }
 
 interface Question {
@@ -224,7 +225,7 @@ const MAX_WRONG_ANSWERS = 5;
 const CORRECT_PATH = ["C", "C", "B", "A", "C", "B", "B", "B", "A", "B", "C", "B", "B", "A", "B", "B"];
 const ANSWER = "TOMORROW";
 
-export const GuidingHelperPuzzle = ({ onSolve }: GuidingHelperPuzzleProps) => {
+export const GuidingHelperPuzzle = ({ onSolve, level = 13 }: GuidingHelperPuzzleProps) => {
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [helperPos, setHelperPos] = useState(START_POS);
     const [path, setPath] = useState<string[]>([]);
@@ -352,24 +353,27 @@ export const GuidingHelperPuzzle = ({ onSolve }: GuidingHelperPuzzleProps) => {
     const question = QUESTIONS[currentQuestion];
 
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            className="w-full h-full flex flex-col p-2 overflow-hidden"
-        >
+        <div className="w-full flex-1 min-h-0 glass-card-glow rounded-sm overflow-hidden transition-all duration-300 flex flex-col">
             {/* Header */}
-            <div className="text-center mb-2 flex-shrink-0">
-                <h2 className="text-xs md:text-sm font-['Press_Start_2P'] text-primary mb-1">
-                    THE RIDDLE CHAMBER
-                </h2>
-                <p className="text-[9px] md:text-[10px] text-muted-foreground italic">
-                    "Ancient wisdom guides the path forward."
-                </p>
+            <div className="bg-gradient-to-r from-secondary/60 to-secondary/40 px-5 py-3.5 border-b-2 border-primary/30 flex items-center gap-3 flex-shrink-0 shadow-lg relative">
+                <Terminal className="h-5 w-5 text-primary animate-pulse" />
+                <span className="text-sm uppercase tracking-[0.25em] text-primary font-bold">
+                    Security Layer {level.toString().padStart(2, '0')}
+                </span>
             </div>
 
-            {/* Main Content */}
-            <div className="flex-1 flex flex-col md:flex-row gap-3 min-h-0 overflow-hidden items-stretch">
+            {/* Content */}
+            <div className="px-3 py-2 space-y-1 flex flex-col flex-1 min-h-0 overflow-y-auto w-full">
+                {/* Question Header */}
+                <div className="space-y-1 flex flex-col flex-shrink-0">
+                    <div className="text-xs uppercase tracking-[0.15em] text-muted-foreground flex items-center gap-2 py-1 border-l-2 border-primary/50 pl-3 bg-primary/5 flex-shrink-0">
+                        <span className="text-primary font-bold text-sm">&gt;</span> 
+                        <span className="text-primary/90 font-semibold">GUIDANCE ALGORITHM</span>
+                    </div>
+                </div>
+
+                {/* Main Content */}
+                <div className="flex-1 flex flex-col md:flex-row gap-3 min-h-0 overflow-hidden items-stretch mt-2">
                 {/* Grid Section */}
                 <div className="flex-1 flex flex-col items-center justify-center bg-zinc-900/30 border border-primary/20 rounded p-3">
                     <div className="text-[8px] text-muted-foreground mb-1 flex flex-col items-center gap-1">
@@ -530,25 +534,26 @@ export const GuidingHelperPuzzle = ({ onSolve }: GuidingHelperPuzzleProps) => {
                 </div>
             </div>
 
-            {/* Progress Indicator */}
-            <div className="flex-shrink-0 mt-2">
-                <div className="flex justify-center gap-1">
-                    {QUESTIONS.map((_, i) => (
-                        <div
-                            key={i}
-                            className={cn(
-                                "w-2 h-2 rounded-full transition-all",
-                                i < currentQuestion
-                                    ? "bg-primary"
-                                    : i === currentQuestion
-                                    ? "bg-primary/50 animate-pulse"
-                                    : "bg-zinc-700"
-                            )}
-                        />
-                    ))}
+                {/* Progress Indicator */}
+                <div className="flex-shrink-0 mt-2 pb-2">
+                    <div className="flex justify-center gap-1">
+                        {QUESTIONS.map((_, i) => (
+                            <div
+                                key={i}
+                                className={cn(
+                                    "w-2 h-2 rounded-full transition-all",
+                                    i < currentQuestion
+                                        ? "bg-primary"
+                                        : i === currentQuestion
+                                        ? "bg-primary/50 animate-pulse"
+                                        : "bg-zinc-700"
+                                )}
+                            />
+                        ))}
+                    </div>
                 </div>
             </div>
-        </motion.div>
+        </div>
     );
 };
 

@@ -182,45 +182,39 @@ export const PhoneKeypadPuzzle = ({ onSolve, level = 8 }: PhoneKeypadPuzzleProps
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            className="w-full h-full flex flex-col p-2 overflow-hidden"
-        >
+        <div className="w-full flex-1 min-h-0 glass-card-glow rounded-sm overflow-hidden transition-all duration-300 flex flex-col">
             {/* Header */}
-            <div className="bg-gradient-to-r from-secondary/60 to-secondary/40 px-5 py-3.5 border-b-2 border-primary/30 flex items-center gap-3 flex-shrink-0 shadow-lg">
+            <div className="bg-gradient-to-r from-secondary/60 to-secondary/40 px-5 py-3.5 border-b-2 border-primary/30 flex items-center gap-3 flex-shrink-0 shadow-lg relative">
                 <Terminal className="h-5 w-5 text-primary animate-pulse" />
                 <span className="text-sm uppercase tracking-[0.25em] text-primary font-bold">
-                    Security Layer 08
+                    Security Layer {level.toString().padStart(2, '0')}
                 </span>
             </div>
 
-            {/* Subheader */}
-            <div className="bg-secondary/20 px-5 py-2 border-b border-primary/20 flex-shrink-0">
-                <div className="flex items-center gap-2">
-                    <span className="text-primary text-lg">&gt;</span>
-                    <span className="text-xs uppercase tracking-[0.2em] text-primary/90 font-semibold">
-                        OUTSIDER IDENTIFICATION TEST
-                    </span>
+            {/* Content */}
+            <div className="px-3 py-2 space-y-1 flex flex-col flex-1 min-h-0 overflow-y-auto w-full">
+                {/* Question Header */}
+                <div className="space-y-1 flex flex-col">
+                    <div className="text-xs uppercase tracking-[0.15em] text-muted-foreground flex items-center gap-2 py-1 border-l-2 border-primary/50 pl-3 bg-primary/5 flex-shrink-0">
+                        <span className="text-primary font-bold text-sm">&gt;</span> 
+                        <span className="text-primary/90 font-semibold">PRIMITIVE COMMUNICATION</span>
+                    </div>
+
+                    <div className="glass-card p-3 md:p-4 rounded-sm flex flex-col gap-3 border border-primary/10">
+                        {/* Text Section */}
+                        <div className="text-foreground flex-shrink-0 text-left space-y-1">
+                            <p className="text-xs md:text-sm font-medium tracking-wide">
+                                You've just found a primitive comms device. Everyone you are familiar with is trapped. Both of you must find someone who is NOT acquainted with them.
+                            </p>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            {/* Question */}
-            <div className="text-left space-y-1 px-5 pt-4 pb-2 flex-shrink-0">
-                <p className="text-[10px] md:text-xs font-['Press_Start_2P'] text-foreground leading-relaxed">
-                    You've just found a primitive comms device:
-                </p>
-                <p className="text-[10px] md:text-xs font-['Press_Start_2P'] text-foreground leading-relaxed">
-                    "Everyone you are familiar with is trapped. Both of you must find someone who is NOT acquainted with them."
-                </p>
-            </div>
-
-            {/* Main Content - Side by Side */}
-            <div className="flex-1 flex gap-3 min-h-0 overflow-hidden">
+            {/* Main Interface Group */}
+            <div className="flex-1 flex gap-3 min-h-0 overflow-hidden mt-3">
                 {/* Left - Contact List */}
                 <div 
-                    className="w-1/2 flex flex-col rounded-lg overflow-hidden"
+                    className="w-1/2 flex flex-col rounded-lg overflow-hidden shrink-0"
                     style={{
                         background: 'linear-gradient(180deg, #9bbc0f 0%, #8bac0f 50%, #7b9c0f 100%)',
                         boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)',
@@ -412,7 +406,9 @@ export const PhoneKeypadPuzzle = ({ onSolve, level = 8 }: PhoneKeypadPuzzleProps
                     </motion.div>
                 )}
             </AnimatePresence>
-        </motion.div>
+            </div>
+            
+        </div>
     );
 };
 

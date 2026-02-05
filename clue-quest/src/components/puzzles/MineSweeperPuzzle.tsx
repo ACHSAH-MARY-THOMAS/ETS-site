@@ -1,10 +1,11 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bomb, Flag, Target, RotateCcw, Footprints, Lightbulb, Skull, Trophy } from "lucide-react";
+import { Bomb, Flag, Target, RotateCcw, Footprints, Lightbulb, Skull, Trophy, Terminal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface MineSweeperPuzzleProps {
     onSolve?: (answer: string) => void;
+    level?: number;
 }
 
 const GRID_SIZE = 8;
@@ -91,7 +92,7 @@ const generateRandomMines = (): Set<string> => {
 
 const ANSWER = "SAFEPATH";
 
-export const MineSweeperPuzzle = ({ onSolve }: MineSweeperPuzzleProps) => {
+export const MineSweeperPuzzle = ({ onSolve, level = 14 }: MineSweeperPuzzleProps) => {
     const [mines, setMines] = useState<Set<string>>(() => generateRandomMines());
     const [revealedCells, setRevealedCells] = useState<Set<string>>(new Set());
     const [flaggedCells, setFlaggedCells] = useState<Set<string>>(new Set());
@@ -297,25 +298,27 @@ export const MineSweeperPuzzle = ({ onSolve }: MineSweeperPuzzleProps) => {
     };
 
     return (
-        <motion.div
-            key={gameKey}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            className="w-full h-full flex flex-col p-2 overflow-hidden"
-        >
+        <div key={gameKey} className="w-full flex-1 min-h-0 glass-card-glow rounded-sm overflow-hidden transition-all duration-300 flex flex-col">
             {/* Header */}
-            <div className="text-center mb-2 flex-shrink-0">
-                <h2 className="text-xs md:text-sm font-['Press_Start_2P'] text-primary mb-1">
-                    MINEFIELD ESCAPE
-                </h2>
-                <p className="text-[9px] md:text-[10px] text-muted-foreground italic">
-                    "Click to reveal cells. Find the goal without hitting mines!"
-                </p>
+            <div className="bg-gradient-to-r from-secondary/60 to-secondary/40 px-5 py-3.5 border-b-2 border-primary/30 flex items-center gap-3 flex-shrink-0 shadow-lg relative">
+                <Terminal className="h-5 w-5 text-primary animate-pulse" />
+                <span className="text-sm uppercase tracking-[0.25em] text-primary font-bold">
+                    Security Layer {level.toString().padStart(2, '0')}
+                </span>
             </div>
 
+            {/* Content */}
+            <div className="px-3 py-2 space-y-1 flex flex-col flex-1 min-h-0 overflow-y-auto w-full">
+                {/* Question Header */}
+                <div className="space-y-1 flex flex-col flex-shrink-0">
+                    <div className="text-xs uppercase tracking-[0.15em] text-muted-foreground flex items-center gap-2 py-1 border-l-2 border-primary/50 pl-3 bg-primary/5 flex-shrink-0">
+                        <span className="text-primary font-bold text-sm">&gt;</span> 
+                        <span className="text-primary/90 font-semibold">MINEFIELD ESCAPE</span>
+                    </div>
+                </div>
+
             {/* Game Stats */}
-            <div className="flex justify-center gap-4 mb-2 text-[8px] md:text-[10px] flex-shrink-0">
+            <div className="flex justify-center gap-4 py-2 mt-2 text-[10px] flex-shrink-0 bg-black/20 rounded border border-primary/10">
                 <div className="flex items-center gap-1 text-primary">
                     <Target className="w-3 h-3" />
                     <span>Clicks: {clickCount}</span>
@@ -447,7 +450,8 @@ export const MineSweeperPuzzle = ({ onSolve }: MineSweeperPuzzleProps) => {
                     <p>Right-click to flag mines. Find the <span className="text-blue-400">Goal</span> without hitting a mine!</p>
                 </div>
             </div>
-        </motion.div>
+            </div>
+        </div>
     );
 };
 

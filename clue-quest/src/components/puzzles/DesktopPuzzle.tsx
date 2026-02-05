@@ -138,35 +138,36 @@ const DesktopPuzzle = ({ puzzle, onCorrectAnswer, onWrongAnswer, level = 5 }: De
     };
 
     return (
-        <div className="animate-fade-in h-full flex flex-col">
+        <div className="w-full flex-1 min-h-0 glass-card-glow rounded-sm overflow-hidden transition-all duration-300 flex flex-col">
             {/* Header */}
-            <div className="bg-gradient-to-r from-secondary/60 to-secondary/40 px-5 py-3.5 border-b-2 border-primary/30 flex items-center gap-3 flex-shrink-0 shadow-lg">
+            <div className="bg-gradient-to-r from-secondary/60 to-secondary/40 px-5 py-3.5 border-b-2 border-primary/30 flex items-center gap-3 flex-shrink-0 shadow-lg relative">
                 <Terminal className="h-5 w-5 text-primary animate-pulse" />
                 <span className="text-sm uppercase tracking-[0.25em] text-primary font-bold">
                     Security Layer {level.toString().padStart(2, '0')}
                 </span>
             </div>
 
-            {/* Subheader */}
-            <div className="bg-secondary/20 px-5 py-2 border-b border-primary/20 flex-shrink-0">
-                <div className="flex items-center gap-2">
-                    <span className="text-primary text-lg">&gt;</span>
-                    <span className="text-xs uppercase tracking-[0.2em] text-primary/90 font-semibold">
-                        KNOWLEDGE LOCATION TEST
-                    </span>
+            {/* Content */}
+            <div className="px-3 py-2 space-y-1 flex flex-col flex-1 min-h-0 overflow-y-auto w-full">
+                {/* Question Header */}
+                <div className="space-y-1 flex flex-col">
+                    <div className="text-xs uppercase tracking-[0.15em] text-muted-foreground flex items-center gap-2 py-1 border-l-2 border-primary/50 pl-3 bg-primary/5 flex-shrink-0">
+                        <span className="text-primary font-bold text-sm">&gt;</span> 
+                        <span className="text-primary/90 font-semibold">KNOWLEDGE LOCATION TEST</span>
+                    </div>
+                    
+                    <div className="glass-card p-3 md:p-4 rounded-sm flex flex-col gap-3 border border-primary/10">
+                        {/* Text Section */}
+                        <div className="text-foreground flex-shrink-0 text-left space-y-1">
+                            <p className="text-xs md:text-sm font-medium tracking-wide">
+                                {puzzle.question}
+                            </p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            <div className="flex-1 flex flex-col px-3 gap-4 py-2 min-h-0 overflow-hidden">
-            {/* Question */}
-            <div className="text-left space-y-1 flex-shrink-0">
-                <p className="text-xs md:text-sm font-['Press_Start_2P'] text-foreground leading-relaxed">
-                    {puzzle.question}
-                </p>
-            </div>
 
             {/* Desktop Environment */}
-            <div className="relative border border-primary/30 rounded-md overflow-hidden bg-[#000000] flex-1 min-h-0 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+            <div className="relative border border-primary/30 rounded-md overflow-hidden bg-[#000000] flex-1 min-h-[300px] shadow-[0_0_30px_rgba(0,0,0,0.5)] mt-3">
                 {/* Background Pattern */}
                 <div className="absolute inset-0 opacity-20 pointer-events-none"
                     style={{
@@ -367,14 +368,11 @@ const DesktopPuzzle = ({ puzzle, onCorrectAnswer, onWrongAnswer, level = 5 }: De
                     })}
                 </div>
             </div>
+            </div>
 
-            {/* Input Section */}
-            <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="shrink-0 pb-2 mt-auto"
-            >
-                <AnswerInput
+            {/* Answer Input */}
+            <div className="space-y-4 mt-auto p-4 z-20 relative">
+                 <AnswerInput
                     onSubmit={handleSolve}
                     successMessage={"ARCHIVAL MATCH CONFIRMED.\nINFORMATION RECOVERED.\nLAYER 05 BREACHED."}
                     errorMessage={feedback}
@@ -383,7 +381,7 @@ const DesktopPuzzle = ({ puzzle, onCorrectAnswer, onWrongAnswer, level = 5 }: De
                     disabled={solved}
                     placeholder="ENTER DECRYPTION KEY..."
                 />
-            </motion.div>
+            </div>
 
             {/* Decoy File Modal */}
             <Dialog open={!!openFile} onOpenChange={(open) => !open && setOpenFile(null)}>
@@ -453,7 +451,6 @@ const DesktopPuzzle = ({ puzzle, onCorrectAnswer, onWrongAnswer, level = 5 }: De
                 isTarget={bookReveal.isTarget}
                 startPos={bookReveal.startPos}
             />
-            </div>
         </div>
     );
 };

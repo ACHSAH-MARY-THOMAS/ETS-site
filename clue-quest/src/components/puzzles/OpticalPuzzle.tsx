@@ -62,40 +62,35 @@ export const OpticalPuzzle = ({ onSolve, level = 6 }: OpticalPuzzleProps) => {
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            className="w-full h-full flex flex-col overflow-hidden"
-        >
+        <div className="w-full flex-1 min-h-0 glass-card-glow rounded-sm overflow-hidden transition-all duration-300 flex flex-col">
             {/* Header */}
-            <div className="bg-gradient-to-r from-secondary/60 to-secondary/40 px-5 py-3.5 border-b-2 border-primary/30 flex items-center gap-3 flex-shrink-0 shadow-lg">
+            <div className="bg-gradient-to-r from-secondary/60 to-secondary/40 px-5 py-3.5 border-b-2 border-primary/30 flex items-center gap-3 flex-shrink-0 shadow-lg relative">
                 <Terminal className="h-5 w-5 text-primary animate-pulse" />
                 <span className="text-sm uppercase tracking-[0.25em] text-primary font-bold">
                     Security Layer {level.toString().padStart(2, '0')}
                 </span>
             </div>
 
-            {/* Subheader */}
-            <div className="bg-secondary/20 px-5 py-2 border-b border-primary/20 flex-shrink-0">
-                <div className="flex items-center gap-2">
-                    <span className="text-primary text-lg">&gt;</span>
-                    <span className="text-xs uppercase tracking-[0.2em] text-primary/90 font-semibold">
-                        PERCEPTUAL DISTORTION TEST
-                    </span>
-                </div>
-            </div>
+            {/* Content */}
+            <div className="px-3 py-2 space-y-1 flex flex-col flex-1 min-h-0 overflow-y-auto w-full">
+                {/* Question Header */}
+                <div className="space-y-1 flex flex-col">
+                    <div className="text-xs uppercase tracking-[0.15em] text-muted-foreground flex items-center gap-2 py-1 border-l-2 border-primary/50 pl-3 bg-primary/5 flex-shrink-0">
+                        <span className="text-primary font-bold text-sm">&gt;</span> 
+                        <span className="text-primary/90 font-semibold">PERCEPTUAL DISTORTION TEST</span>
+                    </div>
 
-            {/* Question */}
-            <div className="text-left space-y-1 px-5 pt-4 pb-2 flex-shrink-0">
-                <p className="text-xs md:text-sm font-['Press_Start_2P'] text-foreground leading-relaxed">
-                    WHY DOES AN OPTICAL ILLUSION HAPPEN?
-                </p>
-            </div>
+                    <div className="glass-card p-3 md:p-4 rounded-sm flex flex-col gap-3 border border-primary/10">
+                        {/* Text Section */}
+                        <div className="text-foreground flex-shrink-0 text-left space-y-1">
+                            <p className="text-xs md:text-sm font-medium tracking-wide">WHY DOES AN OPTICAL ILLUSION HAPPEN?</p>
+                        </div>
+                    </div>
+                </div>
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col items-center justify-center min-h-0 relative overflow-hidden p-2">
-                <div className="relative rounded-lg overflow-hidden border-2 border-primary/20 shadow-2xl" style={{ maxHeight: '100%', aspectRatio: '16/10' }}>
+            <div className="flex-1 flex flex-col items-center justify-center min-h-0 relative overflow-hidden p-2 mt-3">
+                <div className="relative rounded-lg overflow-hidden border-2 border-primary/20 shadow-2xl w-full max-w-3xl" style={{ maxHeight: '100%', aspectRatio: '16/10' }}>
                     {/* Room Image */}
                     <img 
                         src={ROOM_IMAGE}
@@ -277,15 +272,17 @@ export const OpticalPuzzle = ({ onSolve, level = 6 }: OpticalPuzzleProps) => {
                     </motion.div>
                 )}
             </AnimatePresence>
+            </div>
 
             {/* Answer Input - Only shows after going back from flipped */}
+            <div className="space-y-4 mt-auto p-4 z-20 relative">
             <AnimatePresence>
                 {hasFlipped && !frameFlipped && !solved && (
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="mt-2 flex-shrink-0 w-full max-w-md mx-auto"
+                        className="w-full"
                     >
                         <AnswerInput
                             onSubmit={handleSolve}
@@ -300,8 +297,9 @@ export const OpticalPuzzle = ({ onSolve, level = 6 }: OpticalPuzzleProps) => {
                     </motion.div>
                 )}
             </AnimatePresence>
+            </div>
 
-        </motion.div>
+        </div>
     );
 };
 
